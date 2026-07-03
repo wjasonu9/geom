@@ -1,0 +1,128 @@
+---
+title: "Geometry Ch1"
+format:
+  html: default
+#    number-sections: true
+#  pdf:
+#    number-sections: true
+# thm lem cor prp cnj def exm exr
+---
+
+```{python}
+from helper import *
+```
+
+## Intro
+We use special names and symbols to communicate mathematical ideas more simply.
+
+## Points, lines, planes
+A <i>point</i> has 0 <i>dimensions</i>. It is depicted by a dot and labeled by a capital letter, eg point Z below.
+A (line) <i>segment</i> is a straight path from one point to another, called its <i>endpoints</i>. Below, $\overline{ZX}$ (equivalently $\overline{XZ}$) is a segment with endpoints $Z$ and $X$. We write $ZX$ to denote its length.
+Any segment has a <i>midpoint</i> halfway between the 2 endpoints, ie <i>equidistant</i>. We use tick marks to indicate segments of equal length (pay attention to number of ticks). Below, $\overline{XY}$ has midpoint $M$, so $XM=MY$, with (single) tick marks on each. We also have $ZX=WY$, with (double) tick marks on each, but in general $ZX \neq XM$.
+```{python}
+#| echo: false #hide code block from output
+img = np.ones((400, 700, 3), dtype=np.uint8) * 255#Make a blank white canvas image
+z, x, m, y, w = (100, 100), (200, 300), (350, 300), (500, 300), (600, 100)
+cv2.line(img, z, x, color, thickness=2)
+cv2.line(img, x, y, color, thickness=2)
+cv2.line(img, y, w, color, thickness=2)
+for pt in [z, x, m, y, w]:# 4. Draw the visible points
+    cv2.circle(img, pt, radius=4, color=color, thickness=-1)
+cv2.putText(img, "Z", (z[0] - 25, z[1] + 5), font, 0.7, color, 2)
+cv2.putText(img, "X", (x[0] - 10, x[1] + 30), font, 0.7, color, 2)
+cv2.putText(img, "M", (m[0] - 10, m[1] + 30), font, 0.7, color, 2)
+cv2.putText(img, "Y", (y[0] - 10, y[1] + 30), font, 0.7, color, 2)
+cv2.putText(img, "W", (w[0] + 15, w[1] + 5), font, 0.7, color, 2)
+add_tick(img, x, m)
+add_tick(img, m, y)
+for q in [-4,4]: #add double tick
+   add_tick(img, z, x, offset_px=q)
+   add_tick(img, y, w, offset_px=q)
+show_geometry_image(img)
+```
+A <i>ray</i> has a starting point called its <i>origin</i>, from which it goes on in 1 direction indefinitely. Below, $\overrightarrow{AB}$ is a ray with point A as its origin. We cannot denote it $\overrightarrow{BA}$.
+A <i>line</i> has 1 dimension, going indefinitely in 2 opposite directions. Below, $\overleftrightarrow{AC}$ is a line (equivalently $\overleftrightarrow{CA}$ or $\overleftrightarrow{CD}$). We can also refer to it by a lowercase letter, eg line $k$. In figures, the arrows might be omitted (we will strive to include them).
+3+ points all on the same line are <i>collinear</i>. Below, points $A,C,D$ are collinear. 3+ lines passing through the same point are <i>concurrent</i>.
+```{python}
+#| echo: false
+img = np.ones((400, 700, 3), dtype=np.uint8) * 255
+a = (150, 300)
+b = (350, 150)
+c = (400, 300)
+d = (550, 300)
+ray_end = (450, 75)
+cv2.arrowedLine(img, a, ray_end, color, thickness=2, tipLength=0.05)
+cv2.arrowedLine(img, (550, 300), (50, 300), color, thickness=2, tipLength=0.05)
+cv2.arrowedLine(img, (550, 300), (650, 300), color, thickness=2, tipLength=0.15)
+for pt in [a, b, c, d]:
+    cv2.circle(img, pt, radius=4, color=color, thickness=-1)
+cv2.putText(img, "A", (a[0] - 10, a[1] + 35), font, 0.7, color, 2)
+cv2.putText(img, "B", (b[0] - 25, b[1] - 15), font, 0.7, color, 2)
+cv2.putText(img, "C", (c[0] - 10, c[1] + 35), font, 0.7, color, 2)
+cv2.putText(img, "D", (d[0] - 10, d[1] + 35), font, 0.7, color, 2)
+cv2.putText(img, "k", (610, 335), font, 0.7, color, 2)
+show_geometry_image(img)
+```
+A <i>plane</i> has 2 dimensions. Most of our focus is on <i>planar</i> geometry. Finally, <i>space</i> has 3 dimensions.
+
+## Circles
+The set of points equidistant from a point is a <i>circle</i>, with that latter point called the <i>center</i>. Below we have circle $O$, denoted $\odot O$.
+A <i>radius</i> is any segment connecting the center to any point on the circle. The radius can refer to its length too. Below, $\overline{OE}$ is a radius of $\odot O$. We can also say, eg its radius is 1 inch.
+A line can intersect a circle at 0 points (eg, line $k$ below), 1 point (in which case it is a <i>tangent</i> line or simply tangent to the circle), or 2 points (in which case it is a <i>secant</i> line), but not 3+ points. Below, line $j$ is tangent to $\odot O$ and  $\overleftrightarrow{BC}$ is a secant line.
+A <i>chord</i> is any segment connecting any 2 points on a circle. If the chord passes through the center, it is a <i>diameter</i> ('diameter' can also refer to its length). Below, $\overline{BC}$ is a chord, and $\overline{DE}$ is a diameter (if the radius was 1 inch, the diameter is 2 inches).
+An <i>arc</i> is the portion of the circle joining 2 of its points. The <i>minor arc</i> is the shorter arc, referred to by 2 points. The <i>major arc</i> is the longer arc, referred to by 3 points (in the correct forward or backward order). Below, $\overset{\frown}{AB}$ is a minor arc (equivalently $\overset{\frown}{BA}$), while $\overset{\frown}{ACB}$ is a major arc.
+
+::: {#exr-q}
+
+Given that $\overline{DE}$ is a diameter of $\odot O$, prove that $O$ is its midpoint, and that its length is twice the radius.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 700, 3), dtype=np.uint8) * 255
+o = (350, 250)
+radius = 100
+a = (350, 150)
+d = (250, 250)
+e = (450, 250)
+b = (271, 200)
+c = (429, 200)
+cv2.circle(img, o, radius, color, thickness=2)
+double_arrow_line(img, (50, 90), (650, 90))
+double_arrow_line(img, (50, 150), (650, 150))
+double_arrow_line(img, (50, 200), (650, 200))
+double_arrow_line(img, (50, 250), (650, 250))
+cv2.circle(img, o, radius=4, color=color, thickness=-1)#for pt in [o, a, d, e, b, c]:
+cv2.putText(img, "O", (o[0] - 10, o[1] + 25), font, 0.6, color, 2)
+cv2.putText(img, "A", (a[0] - 10, a[1] - 15), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0] - 20, b[1] - 15), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0] + 10, c[1] - 15), font, 0.6, color, 2)
+cv2.putText(img, "D", (d[0] - 20, d[1] + 25), font, 0.6, color, 2)
+cv2.putText(img, "E", (e[0] + 10, e[1] + 25), font, 0.6, color, 2)
+cv2.putText(img, "k", (610, 75), font, 0.6, color, 2)
+cv2.putText(img, "j", (610, 135), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+
+## Construction
+Construction problems ask us to make precise geometric diagrams with 2 simple tools: a compass (for circles or arcs), and a straightedge (for segments). It is not a 'ruler' since we do not get to measure lengths. Similarly, we have no protractor to measure or make angles.
+Motivation: doing constructions reinforces geometric understanding.
+The only permitted operations are
+<ul><li>Given a point, draw any line through it.
+<li>Given 2 points, draw the line that passes through both.
+<li>Given a point, draw any circle centered at it.
+<li>Given a point and a segment, draw the circle centered at that point and with radius of equal length to the segment.
+<li>Given 2 points, draw the circle through 1 point such that the other is the center of the circle.</ul>
+We can draw any portion of a circle, not necessarily in its entirety.
+To start, given a segment, construct another with the same length. Given 2 segments, construct another whose length is the sum (or difference) of them.
+
+## Proofs
+An <i>axiom</i> (or postulate) is a statement that must be regarded as fact without proof. Eg, while it feels obvious that any 2 points can be connected by a segment, it is impossible to prove, and must be simply accepted as a fact. Euclid, the most famous geometer, stated 5 axioms in Elements:
+<ul><li>Any 2 points can be connected by a straight line segment.
+<li>Any line segment can be extended forever in both directions, forming a line.
+<li>Given any line segment, we can draw a circle with the segment as a radius (so an endpoint is the center).
+<li>All right angles are congruent. (we define these soon)
+<li><i>Parallel Postulate</i>: Given any line and a point not on the line, there is exactly 1 line that passes through the point and never meets the 1st line.</ul>
+He combined these axioms to prove ever more complicated mathematical statements. A <i>theorem</i> is a proven mathematical statement. A <i>conjecture</i> is a statement that is not an axiom but has not been proven false or true.
+Mathematicians since have shown that his arguments, to be fully valid, need many more axioms added to these 5. Some things even he did not realize are so 'obvious' that they could not be proved. When we reach these items, we give a 'common sense' explanation of why we accept these statements as facts, and try to distinguish them from theorems.
