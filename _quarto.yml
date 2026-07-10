@@ -10,6 +10,7 @@ book:
     - geom.qmd
     - geom2.qmd
     - geom3.qmd
+    - geom4.qmd
     - qj.qmd
 
 #filters:

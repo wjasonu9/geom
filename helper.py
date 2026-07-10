@@ -48,7 +48,7 @@ def show_many_images(*imgs, nrows=1, x_px=200, y_px=200):
     plt.tight_layout()
     plt.show()
     plt.close()
-def get_intersection(p1, p2, p3, p4, Int=False):
+def get_intersection(p1, p2, p3, p4, Int=True):
     """Finds the intersection point of two lines defined by (p1, p2) and (p3, p4).
     Assumes lines are not parallel; no error handling for parallel/collinear lines."""
     x1, y1 = p1
@@ -73,6 +73,9 @@ def draw_path(img, *pts, color=(0, 0, 0), thickness=2):
         return None
     for j in range(len(pts) - 1):
         cv2.line(img, pts[j], pts[j + 1], color, thickness)
+    '''same via cv2 built-in
+    cv2.polylines(img,[np.array(pts,dtype=np.int32)],isClosed=False,
+        color=color,thickness=thickness)'''
 def find_eq_tri(pt1, pt2, orient=1):
     """Finds pt3 such that pt1, pt2, and pt3 form an equilateral triangle.
     When orient=1, pt3 is chosen such that pt1 -> pt2 -> pt3 is CW (CCW in raw Cartesian space)"""

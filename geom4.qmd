@@ -1,0 +1,325 @@
+---
+title: "Geometry Ch4"
+format:
+  html: default
+#    number-sections: true
+#  pdf:
+#    number-sections: true
+# thm lem cor prp cnj def exm exr
+---
+
+```{python}
+from helper import *
+```
+
+## Perimeter.
+The <i>perimeter</i> of a closed figure is the total length of its boundary, ie the distance needed to travel along its boundary.
+The perimeter of $\triangle ABC$ is $AB+AC+BC$.<br>
+To find the perimeter of the figure below (with a grid of 1 by 1 unit squares overlaid), we can add up the individual lengths, or (faster) note the horizontal sides on top cover the same horizontal distance without backtracking as the bottom side.
+```{python, echo=F}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+for j in range(9):
+    q=100+50*j
+    cv2.line(img, (q,100), (q,500), color, thickness=1)
+    cv2.line(img, (100,q), (500,q), color, thickness=1)
+draw_path(img,(100,500),(500,500),(500,400),(450,400),(450,300),(400,300),(400,250),
+    (250,250),(250,400),(100,400),(100,500))
+show_geometry_image(img)
+```
+
+::: {#exr-4.1}
+
+If $\triangle ABC$ is equilateral with perimeter 36, find $AB$.<br>
+If $\triangle ABC$ is isosceles, each leg is 3 times as long as the base, and the perimeter is 91, what is the length of the base?
+
+:::
+
+::: {#exr-4.1.3}
+
+Must 2 congruent triangles have the same perimeter? Must 2 triangles with the same perimeter be congruent? Must 2 triangles be congruent if they have the same perimeter and at least 1 angle measure in common?
+
+:::
+
+::: {#exr-4.1.2}
+
+Below, $\triangle ABC$, $\triangle ADE$, and $\triangle EFG$ are all equilateral. Point $D$ is the midpoint of $\overline{AC}$, point $G$ is the midpoint of $\overline{AE}$. If $FG=1$, find the perimeter of the overall figure $ABCDEFG$.
+
+:::
+
+```{python, echo=F}
+#| echo: false
+img = np.ones((600, 800, 3), dtype=np.uint8) * 255
+a=(500,500)
+b=(100,500)
+c=find_eq_tri(a,b)
+d=midpt(a,c)
+e=(d[0]+200,d[1])
+g=midpt(a,e)
+f=find_eq_tri(g,e)
+draw_path(img,a,b,c,a,e,f,g)
+cv2.line(img,d,e, color, thickness=2)
+for j,lbl in enumerate('ACBDFEG'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+## Area
+A <i>rectangle</i> is a 4-sided figure with 4 right angles. A <i>square</i> is a rectangle whose 4 sides are all the same length. A <i>right triangle</i> (resp <i>obtuse triangle</i>) is 1 with a right (resp obtuse) angle. Its 2 <i>legs</i> are the sides adjacent to the right angle (not to be confused with an isosceles triangle's 2 legs).
+Below, $\triangle ABC$ is a right triangle with legs $\overline{AB}$ and $\overline{BC}$.
+
+::: {#lem-4.rect}
+
+Below, figure $ABCD$ is a rectangle if and only if $\triangle ABC \cong \triangle CDA$ are congruent right triangles. In particular, $AB=DC$ and $AD=BC$.
+
+:::
+
+::: {.proof}
+
+If $ABCD$ is a rectangle, extend $\overline{DA}$ beyond point $A$ and let $E$ be any point on the extension. Then $m \angle BAE=90^\circ =m \angle ABC=m \angle CDA$, so $\overline{AD}\parallel \overline{BC}$ by @lem-2.7, which also gives $m \angle DAC=m \angle BCA$. By AAS @lem-3.aas, $\triangle ABC \cong \triangle CDA$, and $AB=DC$ and $AD=BC$ by CPCTC.
+If $\triangle ABC \cong \triangle CDA$ are congruent right triangles, then $m \angle DAC=m \angle BCA$ and $m \angle BAC=m \angle DCA$ by CPCTC, and either of the former 2 is complementary to either of the latter 2 by @lem-2.5. It follows that $m \angle DAB=m \angle BCD=90^\circ$, and that figure $ABCD$ is a rectangle.
+
+:::
+
+```{python, echo=F}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(100,400)
+c=(400,400)
+d=(400,200)
+draw_path(img,a,b,c,d,a)
+cv2.line(img, a, c, color, thickness=1)
+draw_path(img, (380,200), (380,220), (400,220), thickness=1) #perp marker
+draw_path(img, (100,380), (120,380), (120,400), thickness=1)
+cv2.putText(img, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "D", (d[0], d[1]-20), font, 0.6, color, 2)
+img0=img.copy()
+e=(50,200)
+cv2.arrowedLine(img,a,(20,200), color, thickness=1, tipLength=1/4)
+draw_path(img, (80,200), (80,220), (100,220), thickness=1)
+cv2.circle(img, e, radius=4, color=color, thickness=-1)
+cv2.putText(img, "E", (e[0], e[1]-20), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+The <i>area</i> of a figure is (roughly speaking) the number (possibly with a fractional part) of 1 by 1 squares needed to cover it. We will take as an axiom that the area of a rectangle is the product of any 2 of its adjacent sides, often called its length and width. Eg, the area of rectangle $ABCD$ above is $[ABCD]=AB \cdot BC$.<br>
+An <i>altitude</i> (or height) of a triangle is a perpendicular segment from a vertex to the opposite side (possibly extended), called the <i>base</i> corresponding to that altitude. The <i>foot</i> corresponding to that altitude is the point where it meets its base. We commonly use 'altitude' and 'base' to refer to either the segments or their lengths.
+Below, in all 3 cases, $\overline{AP}$ is an altitude of $\triangle ABC$ from vertex $A$. The corresponding base is $\overline{BC}$ and foot is point $P$. For an obtuse triangle, 1 altitude does not intersect its base.
+
+::: {#lem-4.tri-area}
+
+The area of a triangle is half of any altitude times its corresponding base. Ie, in any of the 3 cases below, $[ABC]=AP \cdot BC/2$.
+
+:::
+
+::: {.proof}
+
+For the right triangle, draw the line through point $A$ parallel to $\overline{BC}$, and the line through point $C$ parallel to $\overline{AB}$. Let $D$ be their point of intersection. Then $m \angle DAC=m \angle BCA$ and $m \angle BAC=m \angle DCA$ by @lem-2.7. So $\triangle ABC \cong \triangle CDA$ are congruent right triangles by ASA @lem-3.asa, with equal area (axiom?). So figure ABCD is a rectangle by @lem-4.rect with 2 times the area of either right triangle. So $[ABC]=[ABCD]/2=AP \cdot BC/2$.
+For the triangle in the right panel, its altitude $\overline{AP}$ splits it into 2 right triangles, so
+$$[ABC]=[ABP]+[APC]= \frac{AP \cdot BP}{2}+ \frac{AP \cdot PC}{2}= \frac{AP \cdot (BP+PC)}{2}= \frac{AP \cdot BC}{2}$$
+Finally, for the obtuse triangle in the bottom left panel,
+$$[ABC]=[APC]-[APB]= \frac{AP \cdot PC}{2}- \frac{AP \cdot PB}{2}= \frac{AP \cdot (PC-PB)}{2}= \frac{AP \cdot BC}{2}$$
+
+:::
+
+
+```{python, echo=F}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(100,400)
+c=(400,400)
+d=(400,200)
+draw_path(img,a,b,c,a)
+double_arrow_line(img,(50,200),(450,200), color, thickness=1)
+double_arrow_line(img,(400,150),(400,450), color, thickness=1)
+draw_path(img, (100,380), (120,380), (120,400), thickness=1) #perp marker
+cv2.arrowedLine(img, (100, 290), (100, 300), color, thickness=1, tipLength=1.0) #parallel markers
+cv2.arrowedLine(img, (400, 290), (400, 300), color, thickness=1, tipLength=1.0)
+cv2.arrowedLine(img, (240, 200), (250, 200), color, thickness=1, tipLength=1.0)
+cv2.arrowedLine(img, (240, 400), (250, 400), color, thickness=1, tipLength=1.0)
+cv2.putText(img, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "B=P", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "D", (d[0]+10, d[1]-20), font, 0.6, color, 2)
+img1 = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(200,200)
+p=(200,400)
+draw_path(img1,a,b,c,a)
+cv2.line(img1, a, p, color, thickness=1)
+draw_path(img1, (200,380), (220,380), (220,400), thickness=1) #perp marker
+cv2.putText(img1, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img1, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img1, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img1, "P", (p[0], p[1]+20), font, 0.6, color, 2)
+img2 = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(200,400)
+p=(100,400)
+draw_path(img2,a,b,c,a)
+cv2.arrowedLine(img2, b, (50, 400), color, thickness=1, tipLength=0.1)
+cv2.line(img2, a, p, color, thickness=1)
+draw_path(img2, (100,380), (120,380), (120,400), thickness=1) #perp marker
+cv2.putText(img2, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img2, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img2, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img2, "P", (p[0], p[1]+20), font, 0.6, color, 2)
+show_many_images(img,img1,img2,nrows=2)
+```
+Perimeter is rarely a useful problem solving tool, but area helps us find seemingly unrelated quantities.
+
+::: {#exr-4.2.1}
+
+A rectangle has 2 adjacent sides of lengths $x$ and $3x-4$. Its perimeter is 64. Find its area.<br>
+Given right triangle $\triangle ABC$ with $m \angle B=90^\circ$, $AB=3$, $BC=4$, and $AC=5$, find the (length of the) altitude corresponding to each vertex.<br>
+A room has 4 walls, each 12 ft by 10 ft (1 wall includes the door). If it costs 25 cents per $ft^2$ to paint, what is the total cost to paint all the walls? If each gallon paints 80 $ft^2$, how many gallons are needed? What about to paint the floor and ceiling too?<br>
+A square poster is replaced by another, 2 in wider and 2 in shorter. What is the difference in area between the 2 posters?
+
+:::
+
+::: {#exr-4.2.6}
+
+A square garden has perimeter 64 m. A path of uniform width surrounds it, and has area 228 $m^2$ (see below, not to scale). What length of rope is needed to surround the path?
+
+:::
+
+```{python, echo=F}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+cv2.rectangle(img, (100, 100), (500, 500), color=(0,0,0), thickness=2)
+cv2.rectangle(img, (200, 200), (400, 400), color=(128,)*3, thickness=-1)
+cv2.putText(img, "Garden", (225, 375), font, 0.6, color, 2)
+cv2.putText(img, "Path", (125, 475), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+
+## Same altitude, same base
+If 2 triangles have the same altitude (resp base), then the ratio of their areas is the ratio of their corresponding bases (resp altitudes).
+
+::: {#exm-4.3.12}
+
+Given a 4 sided figure $ABCD$, let point $E$ be the intersection of $\overline{AB}$ and $\overline{CD}$. If $[ABE]=24$, $[BCE]=15$, and $[CDE]=10$, find $[ADE]$.
+
+:::
+
+::: {#exm-4.3.5}
+
+Given rectangle $ABCD$ with $BC=8$, let point $E$ be the midpoint of $\overline{AB}$, and point $F$ be on $\overline{BC}$ such that $[EBF]=[ABCD]/6$. Find $CF$.
+
+:::
+
+::: {#exm-4.3.11}
+
+Given a section of wall as shown below (all angles are right angles) with $CD=4$ ft, point $A$ is at a height of 8 ft, and point $B$ at 10 ft. Alice wants to paint $\triangle ACD$, Bob thinks that looks weird and would rather paint $\triangle BCD$. "Besides, it would take less paint," he says. Is he right? Explain.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+a=(100,250)
+b=(400,200)
+c=(300,500)
+d=(400,500)
+draw_path(img,b,d,(100,500),a,(200,250),(200,200),b, thickness=1)
+cv2.line(img, c, d, color, thickness=2)
+cv2.circle(img, c, radius=4, color=color, thickness=-1)
+cv2.putText(img, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0], b[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "D", (d[0], d[1]+20), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+
+## More exercises
+
+::: {#exr-4.4}
+
+What happens to a triangle's area if its base length is doubled, and its altitude is tripled?
+
+:::
+
+::: {#exr-4.25}
+
+Below, given that $\overline{AB}\perp \overline{BC}$, $\overline{DC}\perp \overline{BC}$, $AB=DC=3$, and $BC=4$, find the combined areas of $\triangle ABE$ and $\triangle DCE$.
+
+:::
+
+```{python, echo=F}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(100,500)
+c=(500,500)
+d=(500,200)
+e=(250,500)
+draw_path(img,a,b,c,d,e,a)
+for j,lbl in enumerate('BAEDC'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+draw_path(img, (100,480), (120,480), (120,500), thickness=1) #perp marker
+draw_path(img, (500,480), (480,480), (480,500), thickness=1)
+show_geometry_image(img)
+```
+
+::: {#exr-4.24}
+
+Below (not to scale), given that the 5 outer triangles (eg, 1 of which is $\triangle AFJ$) each has perimeter 23, and the pentagon $FGHIJ$ has perimeter 51, find the perimeter of the star. If all 5 bigger triangles (eg, 1 of which is $\triangle ACI$) have the same perimeter, find it.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((700, 700, 3), dtype=np.uint8) * 255
+a=(100,300)
+b=(400,100)
+c=(600,300)
+d=(400,600)
+e=(200,600)
+g=(410,300) #shift right 10
+i=get_intersection(a,d,c,e)
+draw_path(img,a,c,e,b,d,a)
+for j,lbl in enumerate('ADBECIG'):
+    p=globals()[lbl.lower()]
+    q=25 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.putText(img, "F", (300,290), font, 0.6, color, 2)
+cv2.putText(img, "H", (410,470), font, 0.6, color, 2)
+j=get_intersection(a,d,b,e)
+cv2.putText(img, "J", (j[0]-20, j[1]+10), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+
+::: {#exr-4.4.extra}
+
+Below, find the flaw in the visual argument that 8*8=65. Ie, start with an 8 by 8 grid. Cut it into 4 pieces and rearrange into a 13 by 5 grid. Thus, 8*8=13*5=65.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 800, 3), dtype=np.uint8) * 255
+for j in range(9):
+    q=100+50*j
+    cv2.line(img, (q,100), (q,500), color, thickness=1)
+    cv2.line(img, (100,q), (500,q), color, thickness=1)
+cv2.rectangle(img,(100,100),(500,250), color=(0,0,0), thickness=2)
+draw_path(img,(100,100),(500,250),(500,500),(100,500),(100,250))
+cv2.line(img, (250,500),(350,250), color, thickness=2)
+img1 = np.ones((600, 800, 3), dtype=np.uint8) * 255
+for j in range(14):
+    q=50+50*j
+    cv2.line(img1, (q,50), (q,300), color, thickness=1)
+    if j<6:
+        cv2.line(img1, (50,q), (700,q), color, thickness=1)
+cv2.rectangle(img1, (50,50), (700,300), color=(0,0,0), thickness=2)
+cv2.line(img1, (50,50), (700,300), color, thickness=2)
+cv2.line(img1, (300,144),(300,300), color, thickness=2)
+cv2.line(img1, (450,50),(450,206), color, thickness=2)
+show_many_images(img,img1,nrows=2)
+```
