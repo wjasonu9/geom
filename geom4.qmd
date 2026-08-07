@@ -200,6 +200,22 @@ show_geometry_image(img)
 ## Same altitude, same base
 If 2 triangles have the same altitude (resp base), then the ratio of their areas is the ratio of their corresponding bases (resp altitudes).
 
+::: {#lem-4.3}
+
+Given $\triangle ABC$, if point $D$ is collinear with $B$ and $C$, then $[ABC]/[ABD]=BC/BD$.<br>
+If point $D$ is such that $\overline{AD}\parallel \overline{BC}$, then $[DBC]=[ABC]$.
+
+:::
+
+::: {.proof}
+
+Let point $P$ on $\overleftrightarrow{BC}$ be the foot of the altitude for base $\overline{BC}$. Then $\overline{AP}$ is also an altitude of $\triangle ABD$ for base $\overline{BD}$.
+Then $[ABC]=AP \cdot BC/2$ and $[ABD]=AP \cdot BD/2$ by @lem-4.tri-area. It follows that $[ABC]/[ABD]=BC/BD$.<br>
+Let points $P,Q$ on $\overleftrightarrow{BC}$ be the foot of the altitude for base $\overline{BC}$ from vertices $A,D$, resp.
+Then figure $ADQP$ has 4 right angles by definition of altitude and @lem-2.7, so it is a rectangle with $AP=DQ$ by @lem-4.rect. Thus, $[DBC]=DQ \cdot BC/2=AP \cdot BC/2=[ABC]$.
+
+:::
+
 ::: {#exm-4.3.12}
 
 Given a 4 sided figure $ABCD$, let point $E$ be the intersection of $\overline{AB}$ and $\overline{CD}$. If $[ABE]=24$, $[BCE]=15$, and $[CDE]=10$, find $[ADE]$.

@@ -1,0 +1,680 @@
+---
+title: "Geometry Ch5"
+format:
+  html: default
+#    number-sections: true
+#  pdf:
+#    number-sections: true
+# thm lem cor prp cnj def exm exr
+---
+
+```{python}
+from helper import *
+```
+
+## Intro to similarity
+2 figures are <i>similar</i> if 1 can be obtained from the other by sliding, spinning, flipping, or blowing up (recall they would be congruent if we can do any of these except blowing up). If 2 figures are similar, then their corresponding angles have the same measure, and the ratio between 2 corresponding side lengths is constant (in the case of congruence, this ratio is 1).
+Below, figure $ABCD$ is similar to figure $EFGH$.
+We write $ABCD \sim EFGH$. Just as with congruence, we are careful to line up corresponding vertices. Thus, $m \angle A=m \angle E$, $m \angle B=m \angle F$, $m \angle C=m \angle G$, and $m \angle D=m \angle H$. Further, $AB/EF=BC/FG=CD/GH=DA/HE=AC/EG=BD/FH$.
+As with congruence, our main focus is on triangles.
+
+```{python}
+#| echo: false
+img = np.ones((700, 700, 3), dtype=np.uint8) * 255
+a=(100,300)
+b=(400,150)
+c=(550,300)
+d=(400,600)
+e=(200,300)
+f=(400,200)
+g=(500,300)
+h=(400,500)
+draw_path(img,a,b,c,d,a)
+draw_path(img,e,f,g,h,e)
+for j,lbl in enumerate('DAEBGCH'):
+    p=globals()[lbl.lower()]
+    x,y=(0,-10) if j%2 else (-25,20)
+    cv2.putText(img,lbl,(p[0]+x,p[1]+y),font,0.6,color,2)
+cv2.putText(img,'F',(f[0]-10,f[1]+25),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-5.1.2}
+
+If $\triangle ABC \sim \triangle ADB$, $AC=4$, and $AD=9$, find $AB$.
+
+:::
+
+## AA similarity
+If we can show all angles between 2 figures are the same, and all corresponding side lengths have the same ratio, then we have that the 2 figures are similar. Again as with congruence, we can get away with showing less, especially with triangles.
+
+::: {#lem-5.aa}
+
+Angle-Angle aka <i>AA similarity</i>: If 2 angles in a triangle have the same measures as 2 angles in another, then the 2 triangles are similar.
+Ie, given triangles $\triangle ABC$ and $\triangle DEF$, if $m \angle A=m \angle D$ and $m \angle B=m \angle E$, then $\triangle ABC \sim \triangle DEF$.
+
+:::
+
+::: {.proof}
+
+We are done if $AB=DE$ since then we actually have $\triangle ABC \cong \triangle DEF$ by ASA congruence @lem-3.asa. So assume without loss of generality that $DE>AB$.
+Let point $G$ be such that $AB=DG$. Use the parallel postulate to draw the line through $G$ parallel to $\overline{EF}$, let point $H$ be its intersection with $\overline{DF}$.
+Then $m \angle B=m \angle E=m \angle DGH$ by @lem-2.7, so $\triangle ABC \cong \triangle DGH$ by ASA congruence @lem-3.asa. So it is enough to show that $\triangle DGH \sim \triangle DEF$.
+$m \angle F=m \angle DHG$ by @lem-2.5, so we just need to show the 3 pairs of sides have the same ratio. $[GHE]=[GHF]$ by @lem-4.3, so $[DHE]=[DGH]+[GHE]=[DGH]+[GHF]=[DGF]$, so $DG/DE=[DGH]/[DHE]=[DGH]/[DGF]=DH/DF$ by 2 applications of @lem-4.3. Thus, $AB/DE=AC/DF$.
+By an analogous argument, we also get $AB/DE=BC/EF$ (ie, start by 'superimposing' $\overline{BC}$ onto $\overline{EF}$).
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 700, 3), dtype=np.uint8) * 255
+a=(400,100)
+b=(200,300)
+c=(500,300)
+d,g,h=a,b,c
+e=(100,400)
+f=(550,400)
+draw_path(img,a,b,c,a)
+cv2.ellipse(img,a,(25,25),0,63,135,color,thickness=1) #angle marker
+add_tick(img,a,b)
+img1=img.copy()
+draw_path(img1,g,e,f,h)
+cv2.arrowedLine(img1, (350, e[1]), (360, e[1]), color, thickness=1, tipLength=1.0) #parallel markers
+cv2.arrowedLine(img1, (350, b[1]), (360, b[1]), color, thickness=1, tipLength=1.0)
+for j,lbl in enumerate('ABCDFEHG'):
+    p=globals()[lbl.lower()]
+    x=img if j<3 else img1
+    q=-20 if j%2 else 10
+    cv2.putText(x,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+imgt=img.copy()
+img1t=img1.copy()
+for q in [img,img1]:
+    cv2.line(q, (400,120), (400,130), color, thickness=1)
+    cv2.ellipse(q,b,(25,25),0,315,360,color,thickness=1)
+cv2.ellipse(img1,e,(25,25),0,315,360,color,thickness=1)
+show_many_images(img,img1,nrows=2)
+```
+
+AA similarity is the most common way to show that 2 triangles are similar. AA similarity is special to triangles and does not extend to figures with more sides. For instance, given figures $ABCD$ and $EFGH$, if we know all their angles are right angles, they need not be similar since $ABCD$ can be a square, while $EFGH$ can be a non-square rectangle.<br>
+We now consider 3 common scenarios where similar triangles are encountered.
+
+::: {#lem-5.sim.plel2}
+
+Below, $\triangle ABE \sim \triangle DCE$ if and only if $\overline{AB}\parallel \overline{CD}$.
+
+:::
+
+::: {.proof}
+
+$\overline{AB}\parallel \overline{CD}$ if and only if $m \angle A=m \angle D$ by @lem-2.7. Combined with $m \angle AEB=m \angle DEC$ by @lem-2.3, this is if and only if $\triangle ABE \sim \triangle DCE$ by @lem-5.aa.
+
+:::
+
+A common mistake in this scenario is to say $AE/CE=BE/DE$.
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+a=(200,100)
+b=(500,100)
+c=(100,500)
+d=(400,500)
+e=(300,300)
+draw_path(img,a,b,c,d,a)
+cv2.putText(img, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0], b[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "D", (d[0], d[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "E", (e[0]+20, e[1]), font, 0.6, color, 2)
+cv2.arrowedLine(img, (340, 100), (350, 100), color, thickness=1, tipLength=1.0) #parallel markers
+cv2.arrowedLine(img, (240, 500), (250, 500), color, thickness=1, tipLength=1.0)
+show_geometry_image(img)
+```
+
+Given $a,b \geq 0$, their <i>geometric mean</i> is $\sqrt{ab}$. Geometric means often appear in lengths from right triangles.
+
+::: {#lem-5.sim.right}
+
+If $\triangle ABC$ is a right triangle with $m \angle ABC=90^\circ$, and point $D$ is on $\overline{AC}$ such that $\overline{BD}$ is the altitude corresponding to base $\overline{AC}$, then $\triangle ABC \sim \triangle ADB \sim \triangle BDC$.
+In particular, $(AB)^2=AD \cdot AC$ and $(BD)^2=AD \cdot CD$.
+
+:::
+
+::: {.proof}
+
+We have $m \angle ABC=m \angle ADB=m \angle BDC=90^\circ$ and $m \angle A=m \angle CBD$ by @lem-2.5. Thus, $\triangle ABC \sim \triangle ADB \sim \triangle BDC$ by AA similarity @lem-5.aa.
+In particular, $AC/AB=AB/AD$ $\leftrightarrow$ $(AB)^2=AD \cdot AC$ and $AD/BD=BD/CD$ $\leftrightarrow$ $(BD)^2=AD \cdot CD$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(100,500)
+c=(500,500)
+d=(244,308)
+draw_path(img,d,b,a,c,(50,500))
+draw_path(img,(80,500),(80,480),(100,480),thickness=1) #perp marker
+draw_path(img,(260,320),(248,336),(232,324),thickness=1)
+cv2.putText(img,'A',(a[0],a[1]-10),font,0.6,color,2)
+cv2.putText(img,'B',(b[0],b[1]+20),font,0.6,color,2)
+cv2.putText(img,'C',(c[0],c[1]+20),font,0.6,color,2)
+cv2.putText(img,'D',(d[0],d[1]-10),font,0.6,color,2)
+imgr=img.copy()
+show_geometry_image(img)
+```
+
+::: {#exm-5.2.7}
+
+Below, $\overline{DE}\parallel \overline{BC}$ and $\overline{AY}\parallel \overline{XC}$. Prove that $YE/EX=AD/DB$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+a=(100,100)
+b=(100,500)
+c=(500,500)
+x=(100,300)
+y=(300,200)
+e=get_intersection(a,c,x,y)
+d=(100,e[1])
+draw_path(img,d,a,c,b,d,e)
+draw_path(img,a,y,x,c)
+cv2.arrowedLine(img, (160, e[1]), (170, e[1]), color, thickness=1, tipLength=1.0) #parallel markers
+cv2.arrowedLine(img, (160, 500), (170, 500), color, thickness=1, tipLength=1.0)
+cv2.arrowedLine(img, (200, 150), (190, 145), color, thickness=1, tipLength=1.0)
+cv2.arrowedLine(img, (300, 400), (290, 395), color, thickness=1, tipLength=1.0)
+for j,lbl in enumerate('ACBYDX'):
+    p=globals()[lbl.lower()]
+    q=10 if (j%2 and j<5) else -20
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+cv2.putText(img,'E',(e[0]-10,e[1]+20),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-5.2.2}
+
+Are 2 isosceles triangles similar if they have vertex angles with the same measure? Explain.
+
+:::
+
+::: {#exr-5.2.4}
+
+Given isosceles triangle $\triangle ABC$ with base $BC=1$, $m \angle A=36^\circ$, and point $D$ on $\overline{AC}$ such that $\overline{BD}$ bisects $\angle ABC$. Prove that $\triangle ABC \sim BCD$, and find $AB$.
+
+:::
+
+::: {#exr-5.2.xtra}
+
+Bob wants to cut down a dead tree in his yard, but knows it will hit a nearby powerline if it exceeds 45 ft in height. He stands 30 ft from the tree and holds a ruler vertically 6 in in front of his eyes. The tree seems to measure 8 in. Can he safely cut it down?
+
+:::
+
+## SAS similarity
+
+::: {#lem-5.sas}
+
+Side-angle-side aka <i>SAS similarity</i>: if 2 side lengths of 1 triangle are in the same ratio as 2 sides of another, and the angle these 2 sides form has the same measure, then the triangles are similar.
+Ie, given $\triangle ABC$ and $\triangle DEF$ as below, where $AB/DE=AC/DF$ (equivalently $AB/AC=DE/DF$) and $m \angle A=m \angle D$, then $\triangle ABC \sim \triangle DEF$.
+Further, in the bottom figure, the following are equivalent:
+
+- $\triangle DEF \sim \triangle DGH$.
+- $\overline{EF}\parallel \overline{GH}$.
+- $DG/GE=DH/DF$.
+
+:::
+
+A common mistake is to say $DG/GE=GH/EF$.
+
+::: {.proof}
+
+$\overline{EF}\parallel \overline{GH}$ if and only if $m \angle DGH=m \angle E$ by @lem-2.7, which is if and only if $\triangle DEF \sim \triangle DGH$ by AA similarity @lem-5.aa since they share $\angle D$.<br>
+To show SAS similarity, we start the same way as we did to prove @lem-5.aa. We are done if $AB=DE$ (and hence $AC=DF$ by hypothesis) since then we actually have $\triangle ABC \cong \triangle DEF$ by SAS congruence. So assume without loss of generality that $DE>AB$.
+Let point $G$ be such that $AB=DG$. Use the parallel postulate to draw the line through $G$ parallel to $\overline{EF}$, let point $H$ be its intersection with $\overline{DF}$.
+Then $\triangle DGH \sim \triangle DEF$, so $AC/DF=AB/DE=DG/DE=DH/DF$, ie $AC=DH$. By SAS congruence, $\triangle ABC \cong \triangle DGH \sim \triangle DEF$. Thus, $m \angle B=m \angle DGH=m \angle E$, and $\triangle ABC \sim \triangle DEF$ as desired.<br>
+Finally, $DG/GE=DF/FH$ if and only if $DG/DE=DF/DH$ by algebra, which is if and only if $\triangle DEF \sim \triangle DGH$ by SAS similarity.
+
+:::
+
+```{python}
+#| echo: false
+img = imgt.copy()
+img1=img1t.copy()
+for q in [img,img1]:
+    for j in [-5,5]:
+        add_tick(q,(400,100),(500,300),offset_px=j)
+show_many_images(img,img1,nrows=2)
+```
+
+::: {#exm-5.10}
+
+Given $\triangle ABC$ with point $D$ on $\overline{BC}$, $AB=6$, $BD=4$, $DC=5$, and the perimeter of $\triangle ACD$ is 20, find $AD$.
+
+:::
+
+::: {#exr-5.2.5}
+
+Below (not to scale), $\overline{AB}\parallel \overline{CD}\parallel \overline{GH}$, $AB=x$, $CD=4$, $CE=5$, $EF=y$, $FG=5$, and $FH=7$. Find $x$ in terms of $y$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 600, 3), dtype=np.uint8) * 255
+a=(60,360)
+b=(180,120)
+c=(180,360)
+d=(240,240)
+e=(300,360)
+f=(380,360)
+g=(420,280)
+h=(540,360)
+draw_path(img,b,a,h,b,e)
+cv2.line(img, c, d, color, thickness=2)
+cv2.line(img, f, g, color, thickness=2)
+cv2.arrowedLine(img, (120, 240), (123, 234), color, thickness=1, tipLength=1.5) #parallel markers
+cv2.arrowedLine(img, (210, 300), (213, 294), color, thickness=1, tipLength=1.5)
+cv2.arrowedLine(img, (400, 320), (403, 314), color, thickness=1, tipLength=1.5)
+for j,lbl in enumerate('ABCDEGFH'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-5.3.4}
+
+Below, $m \angle ABE=m \angle ACF=90^\circ$, $\overline{AE}$ bisects $\angle BAC$, and $BC=BD$. Prove that $m \angle BEF=m \angle BFE$ and $\overline{AE}\parallel \overline{CD}$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((640, 480, 3), dtype=np.uint8) * 255
+a=(400,80)
+b=(80,320)
+c=(400,320)
+d=(272,576)
+f=(280,320)
+e=get_intersection(b,d,a,f)
+draw_path(img,c,b,a,c,d,(32,256))
+cv2.line(img, a, e, color, thickness=2)
+cv2.ellipse(img,a,(20,20),0,90,143,color,thickness=1) #angle marker
+draw_path(img, (384,320), (384,304), (400,304), thickness=1) #perp marker
+draw_path(img, (92,311), (83,299), (71,308), thickness=1)
+for lbl,q in zip('ABCDEF',[(10,0),(-10,20),(10,0),(0,20),(-10,20),(0,20)]):
+    p=globals()[lbl.lower()]
+    cv2.putText(img,lbl,(p[0]+q[0],p[1]+q[1]),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+## SSS similarity
+
+::: {#lem-5.sss}
+
+Side-side-side aka <i>SSS similarity</i>: if each side length of 1 triangle is the same multiple as the corresponding side length of another, then the triangles are similar.
+Ie, given $\triangle ABC$ and $\triangle DEF$, where $AB/DE=AC/DF=BC/EF$, then $\triangle ABC \sim \triangle DEF$.
+
+:::
+
+SSS similarity is less useful than SAS and esp AA similarity.
+
+## Problem solving with similarity
+
+::: {#lem-5.5sim.area}
+
+Given that $\triangle ABC \sim \triangle DEF$, with points $P,Q$ on $\overleftrightarrow{BC}, \overleftrightarrow{EF}$ are the feet of altitudes $\overline{AP}, \overline{DQ}$ (resp), and $k:=AB/DE$, then $k=AP/DQ$ and $[ABC]/[DEF]=k^2$.
+Knowing the ratio for any quantity, we can derive the ratio for any other (any of the 3 sides, altitudes, or the area).
+In words, for 2 similar triangles, the ratio between any 2 corresponding altitudes is the ratio of any 2 corresponding side lengths, and this ratio gets squared for area.
+
+:::
+
+::: {.proof}
+
+Since $m \angle APB=m \angle DQE=90^\circ$ and $m \angle B=m \angle E$, $\triangle ABP \sim \triangle DEQ$ by AA similarity @lem-5.aa. So $AP/DQ=AB/DE=k$. Since $BC/EF=AB/DE=k$ too, by @lem-4.tri-area
+$$\frac{[ABC]}{[DEF]}= \frac{AP \cdot BC/2}{DQ \cdot EF/2}= \frac{AP}{BQ}\cdot \frac{BC}{EF}=k^2$$
+
+:::
+
+::: {#exr-5.5.16}
+
+Below (top panel), $\overline{BD}$ bisects $\angle ABC$, $\overline{AD}\perp \overline{BD}$, and point $M$ is the midpoint of $\overline{AC}$. Prove that $\overline{DM}\parallel \overline{BC}$.
+(Bottom panel) $\overline{BD}$ and $\overline{CE}$ bisect $\angle ABC$ and $\angle ACB$ (resp), $\overline{AD}\perp \overline{BD}$, and $\overline{AE}\perp \overline{CE}$. Prove that $\overline{ED}\parallel \overline{BC}$.
+Hint: extending segments (esp those that end within a triangle) helps.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 600, 3), dtype=np.uint8) * 255
+a=(250,100)
+b=(100,300)
+c=(450,300)
+d=(300,200)
+draw_path(img,a,b,c,a,d,b)
+draw_path(img,(280,210),(270,190),(290,180),thickness=1) #perp marker
+cv2.ellipse(img,b,(25,25),0,307,360,color,thickness=1) #angle marker
+cv2.putText(img,'A',(a[0],a[1]-10),font,0.6,color,2)
+cv2.putText(img,'B',(b[0],b[1]+20),font,0.6,color,2)
+cv2.putText(img,'C',(c[0],c[1]+20),font,0.6,color,2)
+cv2.putText(img,'D',(d[0],d[1]+20),font,0.6,color,2)
+img1=img.copy()
+m=(350,200)
+cv2.line(img, d,m, color, thickness=2)
+add_tick(img,a,m)
+add_tick(img,m,c)
+cv2.putText(img,'M',(m[0],m[1]-10),font,0.6,color,2)
+e=(209,200)
+draw_path(img1,a,e,c)
+draw_path(img1,(217,181),(236,189),(228,208),thickness=1) #perp marker
+cv2.ellipse(img1,c,(25,25),0,180,225,color,thickness=1) #angle markers
+cv2.line(img1,(120,294),(130,294),color)
+cv2.line(img1,(114,286),(122,278),color)
+cv2.putText(img1,'E',(e[0],e[1]+20),font,0.6,color,2)
+show_many_images(img,img1,nrows=2)
+```
+
+::: {#exr-5.5.17}
+
+2 flagpoles of heights 12 ft and 9 ft are fixed vertically to the ground 40 ft apart. 2 straight wires connect the 1st flagpole's to the 2nd's base, and the 2nd's top to the 1st's base. At what height do the 2 wires cross?
+
+:::
+
+::: {#exr-5.5.2}
+
+Below, $\overline{DE}\parallel \overline{BC}$, $\overline{AB}\parallel \overline{EF}$, and $[EFC]/[ADE]=4$. Find $AE/EC$, $[EFC]/[ABC]$, and $[DBF]/[ABC]$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(250,100)
+b=(100,400)
+c=(400,400)
+d=(200,200)
+e=(300,200)
+f=(200,400)
+draw_path(img,a,b,c,a)
+draw_path(img,d,e,f,d)
+for j,lbl in enumerate('ABCDE'):
+    p=globals()[lbl.lower()]
+    q=-20 if j%2 else 10
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+cv2.putText(img,'F',(f[0],f[1]+25),font,0.6,color,2)
+cv2.arrowedLine(img,(250,200),(260,200),color,thickness=1,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img,(150,200),(160,200),color,thickness=1,tipLength=1.0)
+cv2.arrowedLine(img,(250,300),(255,290),color,thickness=1,tipLength=1.0)
+cv2.arrowedLine(img,(150,300),(155,290),color,thickness=1,tipLength=1.0)
+show_geometry_image(img)
+```
+
+::: {#exr-5.5.4}
+
+Below (not to scale), $AC=BC$, $\overline{AD}\parallel \overline{GE}$, $\overline{AD}\perp \overline{BC}$, and $\overline{CF}\perp \overline{FG}$.
+Show that $\triangle AFG \sim \triangle BEG$, and $AD=GE-GF$. Hint: let point $H$ on $\overline{GE}$ be such that $\overline{AH}\perp \overline{GE}$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 500, 3), dtype=np.uint8) * 255
+a=(200,300)
+b=(100,500)
+c=(400,500)
+d=(200,500)
+e=(300,500)
+f=(150,250)
+g=(300,100)
+draw_path(img,d,a,b,c,f,g,e)
+cv2.line(img,a,g, color, thickness=2)
+for j,lbl in enumerate('BADFEGC'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0]-10,p[1]+q),font,0.6,color,2)
+draw_path(img,(200,480),(220,480),(220,500),thickness=1) #perp markers
+draw_path(img,(165,235),(180,250),(165,265),thickness=1)
+cv2.arrowedLine(img,(300,450),(300,440),color,thickness=1,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img,(200,450),(200,440),color,thickness=1,tipLength=1.0)
+show_geometry_image(img)
+```
+
+## Construction: angles and parallel lines
+
+::: {#exm-5.angle}
+
+Given $\angle A$ and a ray with origin $B$, draw a line/ ray/ segment thru $B$ such that the resulting angle has the same measure as $\angle A$.<br>
+Draw (part of) a circle with center $A$ (and any radius), let points $C,D$ be the intersection with the 2 sides of $\angle A$.
+Draw $\odot B$ with the same radius, let point $E$ be the intersection with the ray with origin $B$.
+Draw $\odot E$ with radius $CD$, let point $F$ be its intersection with $\odot B$ (pick any such point). Then $m \angle EBF=m \angle A$.
+
+::: {.proof}
+
+By construction, $AC=BE=AD=BF$, and $CD=EF$, so $\triangle ACD \cong \triangle BEF$ by SSS congruence @lem-3.sss, and $m \angle EBF=m \angle A$ by CPCTC.
+
+::: 
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(100,300); b=a
+c=(350,300); e=c
+d=(300,150); f=d
+cv2.arrowedLine(img, a, (400, 300), color, tipLength=0.02, thickness=2)
+cv2.arrowedLine(img, a, (340, 120), color, tipLength=0.02, thickness=2)
+cv2.line(img,c,d, color, thickness=1)
+cv2.ellipse(img,a,(250,250),0,315,375,color,thickness=1)
+add_tick(img,a,c)
+add_tick(img,a,d)
+add_tick(img,c,d,offset_px=5)
+add_tick(img,c,d,offset_px=-5)
+img1=img.copy()
+cv2.ellipse(img1,e,(158,158),0,225,270,color,thickness=1)
+cv2.putText(img, "A", (a[0], a[1]+20), font, 0.6, color, 2)
+cv2.putText(img1,"B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img1,"E", (e[0], e[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "D", (d[0]-10, d[1]-10), font, 0.6, color, 2)
+cv2.putText(img1,"F", (f[0]-10, f[1]-10), font, 0.6, color, 2)
+show_many_images(img,img1)
+```
+
+::: {#exm-5.parallel}
+
+Given a line k and a point $A$ not on k, draw a line thru $A$ parallel to k.<br>
+Draw any line thru $A$ that intersects k, say at point $B$. Let $C$ be any other point on k.
+Draw a line $\overleftrightarrow{AD}$ such that $\overleftrightarrow{AD}$ forms the same angle with it as it does with line k using @exm-5.angle.
+Then $\overleftrightarrow{AD}\parallel \overleftrightarrow{BC}$ by @lem-2.7.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(200,100)
+b=(100,300)
+c=(300,300)
+d=(400,100)
+double_arrow_line(img,(50,100),(450,100),thickness=1)
+double_arrow_line(img,(50,300),(450,300))
+double_arrow_line(img,(75,350),(225,50))
+cv2.ellipse(img,a,(25,25),0,306,360,color,thickness=1) #angle markers
+cv2.ellipse(img,b,(25,25),0,306,360,color,thickness=1)
+for lbl in 'ABCD':
+    p=globals()[lbl.lower()]
+    cv2.putText(img,lbl,(p[0]-20,p[1]-10),font,0.6,color,2)
+cv2.circle(img, c, radius=4, color=color, thickness=-1)
+cv2.circle(img, d, radius=4, color=color, thickness=-1)
+cv2.putText(img,'k',(430,290),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exm-5.trisect}
+
+Trisect a given segment $\overline{AB}$, ie split it into 3 segments of equal length.<br>
+Draw a ray with origin at point $A$ (and does not hit $B$). Let $C$ be any point on the ray. Find points $D,E$ on the ray such that $AC=CD=DE$.
+Draw $\overline{BE}$, then lines thru $C,D$ parallel to it using @exm-5.parallel. Let $F,G$ be their points of intersection with $\overline{AB}$. Then $AF=FG=GB$.
+
+:::
+
+::: {.proof}
+
+$AF/AB=AC/AE=1/3$ and $AG/AB=AD/AE=2/3$ by @lem-5.sas, so $AF=FG=GB$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+cv2.line(img, (100,100),(100,400), color, thickness=2)
+cv2.arrowedLine(img,(100,100),(450,450), color, thickness=1, tipLength=0.02)
+pts=[(100,100)]
+for q in [150,250,350]:
+    cv2.line(img, (90,q-5),(110,q-5), color, thickness=1) #add ticks
+    cv2.line(img, (90,q+5),(110,q+5), color, thickness=1)
+    cv2.line(img, (q+5,q-5),(q-5,q+5), color, thickness=1)
+    x=q+50
+    cv2.line(img, (100,x),(x,x), color, thickness=1)
+    cv2.arrowedLine(img, (50+x//2,x), (60+x//2,x), color, thickness=1, tipLength=1.0) #parallel marker
+    pts.extend([(x,x),(100,x)])
+for j,lbl in enumerate('ACFDGEB'):
+    p=pts[j]
+    q=10 if j%2 else -20
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-5.6.1}
+
+Given a segment $\overline{AB}$ of length 1, construct another of length 1/5, and of length 8/3.<br>
+Given $\triangle ABC$, construct another similar triangle with 9 times the area.
+
+:::
+
+## More Problems
+
+::: {#exr-5.7.24}
+
+Points $D,E$ are on $\overline{AB}, \overline{AC}$ such that $\overline{DE}\parallel \overline{BC}$. If $AB=12$, $BD=9$, and $AC=18$, find $AE$.<br>
+A ttiangle has sides 4, 6, 9. If a 2nd similar triangle has 36 as 1 of side lengths, what is its largest possible perimeter?
+
+:::
+
+::: {#exr-5.7.26}
+
+For both figures below (not to scale), decide if the given side lengths are possible. If not, change as few of them as possible to fix.<br>
+(Top panel) Given $\overline{DE}\parallel \overline{BC}$. Can $AD=7$, $BD=12$, $AE=4$, and $DE=9$?
+(Bottom panel) Given $m \angle B=m \angle D$, and $BE=CE$. Can $AB=4$, $AE=3$, $DE=6$, and $CD=5$?
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 600, 3), dtype=np.uint8) * 255
+a=(380,100)
+b=(80,400)
+c=(530,400)
+d=(180,300)
+e=(480,300)
+draw_path(img,d,e,a,b,c,e)
+cv2.arrowedLine(img, (330,300), (340,300), color, thickness=1, tipLength=1.0) #parallel markers
+cv2.arrowedLine(img, (330,400), (340,400), color, thickness=1, tipLength=1.0)
+for j,lbl in enumerate('ABCDE'):
+    p=globals()[lbl.lower()]
+    q=-20 if j%2 else 10
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+img1 = np.ones((500, 600, 3), dtype=np.uint8) * 255
+a=(100,250)
+b=(100,400)
+c=(300,100)
+d=(525,250)
+e=(200,250)
+draw_path(img1,a,b,c,d,a)
+add_tick(img1,b,e)
+add_tick(img1,c,e)
+cv2.ellipse(img1,b,(25,25),0,270,304,color,thickness=1) #angle markers
+cv2.ellipse(img1,d,(25,25),0,180,214,color,thickness=1)
+for j,lbl in enumerate('BADCE'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img1,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_many_images(img,img1,nrows=2)
+```
+
+::: {#exr-5.7.28}
+
+Below (not to scale), if $AD=9$, $AE=6$, $BD=11$, $CE=24$, and $DE=11$, find $BC$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(400,250)
+b=(325,100)
+c=(100,400)
+d=(350,150)
+e=(350,275)
+draw_path(img,d,e,a,b,c,e)
+for j,lbl in enumerate('ACBED'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-5.7.29}
+
+Below (not to scale), $\overline{AC}\perp \overline{BD}$, $\overline{AB}\perp \overline{BC}$, $\overline{CD}\perp \overline{BC}$, $AE=4$, and $CE=6$. Find all remaining side lengths.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,220)
+b=(190,100)
+c=(350,220)
+d=(190,433)
+e=(190,220)
+draw_path(img,(220,60),a,c,b,d,(380,180))
+for j,lbl in enumerate('CADBE'):
+    p=globals()[lbl.lower()]
+    x,y=(-20,0) if j%2 else (10,20)
+    cv2.putText(img,lbl,(p[0]+x,p[1]+y),font,0.6,color,2)
+draw_path(img,(202,84),(218,96),(206,112),thickness=1) #perp markers
+draw_path(img,(334,208),(346,192),(362,204),thickness=1)
+draw_path(img,(190,200),(210,200),(210,220),thickness=1)
+show_geometry_image(img)
+```
+
+::: {#exr-5.7.34}
+
+Below, $\overline{AB}\parallel \overline{EF}\parallel \overline{CD}$. Show that
+$$\frac{1}{EF}= \frac{1}{AB}+ \frac{1}{CD}$$
+Interestingly, if $AB,CD$ represent the amount of time it takes 1 person and another to do a task individually, then $EF$ is the amount of time it takes them, working together.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 600, 3), dtype=np.uint8) * 255
+a=(180,200)
+b=(80,400)
+c=(530,100)
+d=(380,400)
+e=get_intersection(a,d,b,c)
+f=get_intersection(b,d,e,(e[0]+50,e[1]-100))
+draw_path(img,b,c,d,a,b,d)
+cv2.line(img,e,f, color, thickness=2)
+for j,lbl in enumerate('ABCDEF'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -15
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+for p in [b,d,f]: #parallel markers
+    cv2.arrowedLine(img,(p[0]+25,p[1]-50),(p[0]+30,p[1]-60),color,thickness=1,tipLength=1)
+show_geometry_image(img)
+```
