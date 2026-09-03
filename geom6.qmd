@@ -1,0 +1,669 @@
+---
+title: "Geometry Ch6"
+format:
+  html: default
+#    number-sections: true
+#  pdf:
+#    number-sections: true
+# thm lem cor prp cnj def exm exr
+---
+
+```{python}
+from helper import *
+```
+
+## Pythagorean Theorem
+Recall that a right triangle has a right angle. Its 2 legs are the sides adjacent to that right angle. The <i>hypotenuse</i> is opposite that right angle.
+A common problem solving tool is to build right triangles and using facts about them. The Pythagorean theorem is the 1st, most famous, and most important.
+
+::: {#lem-6.pythag}
+
+<i>Pythagorean theorem</i>: $\triangle ABC$ with side lengths $AB=a$, $BC=b$, and $AC=c$ is a right triangle (with $m \angle B=90^\circ$) if and only if $a^2+b^2=c^2$.
+
+:::
+
+::: {.proof}
+
+"$\to$" Draw the altitude from $B$ to $\overline{AC}$, let point $D$ be its foot. Then $a^2=AD \cdot AC$ and $b^2=CD \cdot AC$ by @lem-5.sim.right, so $a^2+b^2=(AD+CD) \cdot AC=(AC)^2=c^2$.
+"$\leftarrow$" Let $\triangle EFG$ be a right triangle with $EF=a$, $FG=b$, and $m \angle F=90^\circ$.
+Then $c^2=a^2+b^2=EG^2$, ie $EG=c$ by what we just showed, so $\triangle ABC \cong \triangle EFG$ by SSS congruence @lem-3.sss, so $m \angle B=90^\circ$ by CPCTC and $\triangle ABC$ is a right triangle.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(100,500)
+c=(500,500)
+d=(244,308)
+draw_path(img,d,b,a,c,(50,500))
+draw_path(img,(80,500),(80,480),(100,480),thickness=1) #perp marker
+draw_path(img,(260,320),(248,336),(232,324),thickness=1)
+cv2.putText(img,'A',(a[0],a[1]-10),font,0.6,color,2)
+cv2.putText(img,'B',(b[0],b[1]+20),font,0.6,color,2)
+cv2.putText(img,'C',(c[0],c[1]+20),font,0.6,color,2)
+cv2.putText(img,'D',(d[0],d[1]-10),font,0.6,color,2)
+imgr=img.copy()
+show_geometry_image(img)
+```
+The ancient Egyptians used the Pythagorean Theorem to ensure their bricks, buildings, etc had right angles.
+They used a rope split into 12 equal sections that when pulled taut would form a 3-4-5 right triangle.
+Math hobbyists have long made a sport of finding more ways to prove the Pythagorean theorem. Many of these involve diagrams/ puzzles, with attributions to Leonardo da Vinci and James A Garfield, among others.
+
+::: {#lem-6.dist}
+
+The <i>distance</i> from a point $A$ to a line $k$ is the length of the shortest segment between the point and the line.<br>
+If $A$ is on $k$, the distance is 0. Else (as below, left panel), the distance is $AC$ if and only if $\overline{AC}$ is perpendicular to $k$.<br>
+If $\overleftrightarrow{AB}$ is parallel to line $k$ (as below, right panel), then points $A,B$ are the same distance from $k$.
+
+:::
+
+::: {.proof}
+
+Part 1: Let $\overline{AC}$ be perpendicular to $k$, $D$ be any point on $k$ besides $C$. Then $\triangle ACD$ is a right triangle with $m \angle ACD=90^\circ$, so $AC^2+CD^2=AD^2$ by the Pythagorean theorem @lem-6.pythag.
+Since $D \neq C$, $CD>0$. So $AC^2<AD^2$, and $AC<AD$ since distances are non negative.<br>
+Part 2: Let points $C,D$ on $k$ be such that $\overline{AC}, \overline{BD}$ are perpendicular to $k$.
+Then $m \angle BAC=m \angle ABD=90^\circ$ by @lem-2.7, so $ABDC$ is a rectangle, so $AC=BD$ by @lem-4.rect.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(200,175)
+b=(300,125)
+c=(280,335)
+d=(380,285)
+double_arrow_line(img,(150,400),(400,275))
+cv2.line(img,a,c, color, thickness=1)
+draw_path(img,(270,315),(250,325),(260,345),thickness=1) #perp marker
+cv2.putText(img,'A',(a[0]-5,a[1]-10),font,0.6,color,2)
+cv2.putText(img,'C',(c[0],c[1]+20),font,0.6,color,2)
+cv2.putText(img,'D',(d[0],d[1]+20),font,0.6,color,2)
+cv2.putText(img,'k',(195,365),font,0.6,color,2)
+img1=img.copy()
+cv2.line(img,a,d, color, thickness=1)
+double_arrow_line(img1,(100,225),(350,100))
+cv2.line(img1,b,d, color, thickness=1)
+draw_path(img1,(370,265),(350,275),(360,295),thickness=1) #perp marker
+cv2.putText(img1,'B',(b[0]-5,b[1]-10),font,0.6,color,2)
+cv2.arrowedLine(img1,(250,150),(260,145),color,thickness=1,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img1,(330,310),(340,305),color,thickness=1,tipLength=1.0)
+show_many_images(img,img1)
+```
+
+::: {#exm-6.1.8}
+
+Below, $AC=3$, $BC=4$, $AB=5$, and $CD=6$. Find $BD$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(70,300)
+b=(190,140)
+c=(190,300)
+d=(430,300)
+draw_path(img,b,c,a,b,d,c)
+cv2.putText(img,'A',(a[0]-20,a[1]),font,0.6,color,2)
+cv2.putText(img,'B',(b[0],b[1]-10),font,0.6,color,2)
+cv2.putText(img,'C',(c[0],c[1]+20),font,0.6,color,2)
+cv2.putText(img,'D',(d[0]+10,d[1]),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-6.1}
+
+Prove that the hypotenuse is a right triangle's longest side.<br>
+Given a right triangle with side lengths 7, r, and r+1,_find all possible values of r.<br>
+Find the area of a triangle with side lengths 7, 7, and 10. What about $\sqrt{6}, \sqrt{7}, \sqrt{13}$?<br>
+2 poles of lengths 9 and 16 ft are planted vertically in the ground, 14 ft apart. What is the minimal length of rope needed to connect their tops?<br>
+1 leg of a right triangle is 3 cm more than 3 times the other, and the hypotenuse is 1 cm longer than the longest leg. Find this triangle's area.<br>
+A 25 ft ladder rests against a vertical wall to reach 15 ft up the wall. How far toward the wall does Bob have to move the botton to get it to reach 24 ft up?<br>
+An isosceles triangle has 2 legs of length 13, and base of length 10. What is the other possibility for its base length to leave the area unchanged?
+
+:::
+
+::: {#exr-6.1.yt}
+
+Below, regions A and D are squares. The areas of regions C and D are 6 and 9, resp. Find the area of region B.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(220,100)
+b=(310,220)
+c=(190,310)
+d=(400,220)
+draw_path(img,(310,310),b,d,(400,310),c,b,a,(100,190),c)
+cv2.line(img,a,d,color,thickness=2)
+cv2.putText(img,'A',midpt(a,c),font,1,color,2)
+cv2.putText(img,'B',(310,200),font,1,color,2)
+cv2.putText(img,'C',(280,280),font,1,color,2)
+cv2.putText(img,'D',(355,265),font,1,color,2)
+show_geometry_image(img)
+```
+
+## 2 special right triangles
+
+::: {#lem-6.45tri}
+
+For $\triangle ABC$, the following are equivalent:
+
+- it is an isosceles right triangle.
+- its angles are $45^\circ$, $45^\circ$, and $90^\circ$.
+- its side lengths are in ratio $1:1: \sqrt{2}$.
+
+The $\sqrt{2}$ corresponds to the hypotenuse. This triangle is unique up to similarity and is called a <i>45-45-90 triangle</i>.
+
+:::
+
+::: {.proof}
+
+Items 1 and 2 are equivalent by @lem-3.6.isosc and @lem-2.5.
+Items 1 and 3 are equivalent, ie we have an isosceles right triangle if and only if the edge lengths are $a, a, a \sqrt{2}$ for some $a>0$ by the Pythagorean theorem @lem-6.pythag.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,100)
+b=(400,400)
+c=(100,400)
+draw_path(img,a,b,c,a)
+add_tick(img,a,c)
+add_tick(img,b,c)
+draw_path(img,(100,380),(120,380),(120,400),thickness=1) #perp marker
+cv2.putText(img, "A", (a[0], a[1]-10), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.ellipse(img,a,(25,25),0,45,90,color,thickness=1) #angle markers
+cv2.ellipse(img,b,(25,25),0,180,225,color,thickness=1)
+show_geometry_image(img)
+```
+
+Aside: Pythagoras was the head of a secret society whose members were called Pythagoreans.
+Among their deeply held beliefs was that all phenomena in nature could be described by whole numbers.
+But their study of right triangles inevitably led to irrational numbers, eg for the 45-45-90 triangle, the ratio of lengths of the hypotenuse to either leg is $\sqrt{2}$, which is irrational (proof by contradiction).
+It is said that Hippasus was the Pythagorean who pointed out the existence of irrational numbers, and he was murdered as a result.
+
+::: {#lem-6.30tri}
+
+A triangle has angles $30^\circ$, $60^\circ$, and $90^\circ$ if and only if its side lengths are in the ratio $1: \sqrt{3}:2$.
+The $30^\circ$ is opposite the side with length 1, and the $90^\circ$ is opposite the side with length 2.<br>
+An equilateral triangle with side length $s$ has area $s^2 \sqrt{3}/4$.
+
+:::
+
+Knowing how to derive an equilateral triangle's  area is more important than memorizing its formula.
+
+::: {.proof}
+
+Consider equilateral $\triangle ABC$ with side length $2a>0$. Draw the altitude from point $A$ to $\overline{BC}$, let $M$ be its foot.
+Then by @lem-3.6.isosc and @lem-3.6.eqtri, $m \angle B=60^\circ$, $m \angle BAM=30^\circ$, and $BM=a$.
+So $AM=a \sqrt{3}$ by the Pythagorean theorem @lem-6.pythag.
+Any triangle with side lengths $a, a \sqrt{3}, 2a$ is congruent to $\triangle ABM$ by SSS congruence @lem-3.sss, so its angles must be $30^\circ$, $60^\circ$, and $90^\circ$.<br>
+Since $\triangle ABC$ has side length $s=a/2$, by @lem-4.tri.area
+$$[ABC]= \frac{BC \cdot AM}{2}= \frac{s \cdot s \sqrt{3}/2}{2}=s^2 \frac{\sqrt{3}}{4}$$
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+b=(100,500)
+c=(500,500)
+a=find_eq_tri(c,b)
+m=(300,500)
+draw_path(img,a,b,c,a,m)
+cv2.putText(img, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "M", (m[0], m[1]+20), font, 0.6, color, 2)
+cv2.line(img, (200,490), (200,510), color, thickness=1) #ticks
+cv2.line(img, (400,490), (400,510), color, thickness=1)
+for q in [-5,5]:
+    add_tick(img,a,b,offset_px=q)
+    add_tick(img,a,c,offset_px=q)
+cv2.line(img, (320,480), (300,480), color, thickness=1) #perp marker
+cv2.line(img, (320,480), (320,500), color, thickness=1)
+# cv2.ellipse(img,a,(25,25),0,63,117,color,thickness=1) #angle markers
+# cv2.ellipse(img,b,(25,25),0,297,360,color,thickness=1)
+# cv2.line(img, (112,491), (128,479), color, thickness=1)
+# cv2.ellipse(img,c,(25,25),0,180,243,color,thickness=1)
+# cv2.line(img, (488,491), (472,479), color, thickness=1)
+show_geometry_image(img)
+```
+
+::: {#exr-6.2}
+
+Find the area of isosceles $\triangle ABC$ if $m \angle B=120^\circ$ and $AB=8$.<br>
+Given $\triangle ABC$ with $AB=20$, $m \angle A=30^\circ$, and $m \angle C=45^\circ$, find $BC$.
+
+:::
+
+## Pythagorean triples
+
+A <i>Pythagorean triple</i> is a set of 3 positive integers a,b,c satisfying $a^2+b^2=c^2$.
+
+::: {#exm-6.3.14}
+
+If a,b,c is a Pythagorean triple, then so is na, nb, nc for any positive integer n. (And any real $n>0$ produces valid side lengths for a right triangle)<br>
+A geometric proof uses SSS similarity @lem-5.sss. An algebraic proof uses $a^2+b^2=c^2$ if and only if $(na)^2+(nb)^2=(nc)^2$.
+
+:::
+
+::: {#exr-6.3.2}
+
+Let $a, b, c>0$ be a right triangle's side lengths.
+
+- Can they all be odd?
+- Can exactly 2 of them be even?
+- Can 1 side be an integer, and the other 2 be simple fractions (a ratio of integers, where the denominator is $\geq 2$)?
+- Can 1 side be a simple fraction, and the other 2 be integers?
+
+:::
+
+::: {#exm-6.3.15}
+
+If a, b, c is a relatively prime Pythagorean triple, then exactly 1 of them is even, and c is odd. 
+Prove that $2mn, m^2-n^2, m^2+n^2$ is a Pythagorean triple for any positive integers $m>n$. (It turns out that any relatively prime Pythagorean triple fits this mold) Find them for $n=1, $m \leq 6$.
+
+:::
+
+::: {.proof}
+
+Let a, b, c be a relatively prime Pythagorean triple with a even, and b,c odd. Then $a^2+b^2=c^2$, so $a^2=(c-b)(c+b)$.
+Let $m,n>0$ be such that $m^2=(c+b)/2$, $n^2=(c-b)/2$. Then $m^2, n^2$ are integers since b,c are odd. We thus have $a=2mn$, $b=m^2-n^2$, and $c=m^2+n^2$.
+From $a^2=4m^2n^2$, and the fact that a, b, c are relatively prime, we see that $m^2, n^2$ are perfect squares, so $m,n$ are in fact integers.
+
+:::
+
+Recognizing Pythagorean triples helps with problem solving to get all of a right triangle's sides without having to compute them via the Pythagorean theorem.
+When using Pythagorean triples, make sure that the longest side always corresponds to the hypotenuse, eg a right triangle with legs 5 and 13 does not have hypotenuse 12.<br>
+Aside: perhaps inspired by Pythagorean triples, Pierre de Fermat studied the equation $a^n+b^n=c^n$ for integers $n \geq 3$ and postulated that it has no solution using integers a, b, c.
+This result is called Fermat's Last Theorem, and was not proven until the 1990s (some 350 years later).
+
+::: {#exr-6.3.3}
+
+Alice rides her bike north 3 miles, east 8 miles, south 13 miles, and east 16 miles. How far is she from her starting point?
+
+:::
+
+::: {#exr-6.3.5}
+
+Using $a^2=c^2-b^2=(c-b)(c+b)$, find all right triangles with a leg of length 18 and all other side lengths are integers.<br>
+Find all right triangles with hypotenuse of length 97, and both leg lengths are integers.
+
+:::
+
+## HL similarity and congruence
+
+Recall from chapter 3 that ssa in general does not imply congruence (and a corresponding result does not imply similarity).
+but there is a special case where ssa 'works.'
+
+::: {#lem-6.hl}
+
+<i>Hypotenuse Leg (HL) similarity</i>: Given right triangles $\triangle ABC$ and $\triangle DEF$ with $m \angle C=m \angle F=90^\circ$, if $AB/DE=AC/DF$, then $\triangle ABC \sim \triangle DEF$.
+<i>HL congruence</i>: if $AB/DE=AC/DF=1$, then $\triangle ABC \cong \triangle DEF$.
+
+:::
+
+::: {.proof}
+
+Let $k=AB/DE$. By the Pythagorean theorem @lem-6.pythag, $(EF)^2=(DE)^2-(DF)^2$ and $(BC)^2=(AB)^2-(AC)^2=k^2 \{ (DE)^2-(DF)^2 \}$, so $BC/EF=k$, ie $AB/DE=AC/DF=BC/EF$.
+By SSS similarity @lem-5.sss, we have $\triangle ABC \sim \triangle DEF$.
+If k=1, then by SSS congruence @lem-3.sss, we have $\triangle ABC \cong \triangle DEF$.
+
+::: 
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,300)
+b=(250,100)
+c=(100,100)
+d=(400,100)
+e=(175,400)
+f=(400,400)
+draw_path(img,a,b,c,a)
+draw_path(img,d,e,f,d)
+draw_path(img,(120,100),(120,120),(100,120),thickness=1) #perp marker
+draw_path(img,(380,400),(380,380),(400,380),thickness=1)
+for j,lbl in enumerate('ABECFD'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+Technically, leg-leg similarity (resp congruence) also holds, but these are just special cases of SAS similarity (resp congruence).
+
+::: {#exm-6.4.18}
+
+Use HL @lem-6.hl to give another proof of 1 direction of @exm-3.pb-chord: given $\odot O$ with chord $\overline{AB}$ (not a diameter) and radius $\overline{OC}\perp \overline{AB}$, then $\overline{OC}$ bisects $\overline{AB}$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255
+o=(300,300)
+a=(420,140)
+b=(420,460)
+c=(500,300)
+#m=(420,300)
+cv2.circle(img, o, radius=4, color=color, thickness=-1)
+cv2.circle(img, o, radius=200, color=color, thickness=2)
+cv2.line(img, o, c, color, thickness=2)
+cv2.line(img, a, b, color, thickness=2)
+cv2.line(img, o, a, color, thickness=1)
+cv2.line(img, o, b, color, thickness=1)
+cv2.line(img, (410,220), (430,220), color, thickness=1) #tick
+cv2.line(img, (410,380), (430,380), color, thickness=1)
+cv2.line(img, (440,280), (440,300), color, thickness=1) #perp marker
+cv2.line(img, (440,280), (420,280), color, thickness=1)
+cv2.putText(img, "O", (o[0] - 20, o[1]), font, 0.6, color, 2)
+cv2.putText(img, "A", (a[0] + 20, a[1]), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0] + 20, b[1]), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0] + 20, c[1]), font, 0.6, color, 2)
+cv2.putText(img, "M", (400, 280), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+
+::: {#exm-6.4.19}
+
+Given $\odot O$ with chord $\overline{AB}$. If the radius is 9 and the chord's distance from point O is 3, find AB.
+If $AB=12$ and the distance from point O to $\overline{AB}$ is 4, find the radius of $\odot O$.
+
+:::
+
+::: {#exr-6.4.4}
+
+Given $\overline{AC}\perp \overline{CB}, \overline{AC}\perp \overline{AD}$, $\overline{AB}\perp \overline{BD}$, $AC=4$, and $BC=3$, find all remaining sides.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 400, 3), dtype=np.uint8) * 255
+a=(150,100)
+b=(294,208)
+c=(294,100)
+d=(150,400)
+draw_path(img,(100,100),c,b,d,a,b)
+draw_path(img,(130,100),(130,120),(150,120),thickness=1) #perp marker
+draw_path(img,(274,100),(274,120),(294,120),thickness=1)
+draw_path(img,(278,196),(266,212),(282,224),thickness=1)
+for j,lbl in enumerate('ABCD'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+::: {#exr-6.4.5}
+
+Given square $ABCD$, point $M$ is the midpoint of $\overline{BC}$, and $\overline{AM}\perp \overline{ME}$, prove that $\triangle ABM \sim \triangle MCE$, and $m \angle BAM= m \angle MAE$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,100)
+b=(400,100)
+c=(400,400)
+d=(100,400)
+e=(325,400)
+m=(400,250)
+draw_path(img,a,b,c,d,a,e,m,a)
+draw_path(img,(380,240),(370,260),(390,270),thickness=1) #perp marker
+add_tick(img,b,m)
+add_tick(img,c,m)
+for j,lbl in enumerate('CADBE'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.putText(img,"M",(m[0]+10,m[1]),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+## Heron's Formula\*
+
+Due to SSS congruence, we know a triangle up to congruence given its 3 side lengths, so we should be able to find the area.
+
+::: {#lem-6.heron}
+
+Given a triangle with side lengths $a,b,c>0$, its area is $\sqrt{s(s-a)(s-b)(s-c)}$, where $s=(a+b+c)/2$ is the <i>semi perimeter</i>.
+
+:::
+
+::: {.proof}
+
+Let $\triangle ABC$ have $BC=a$, $AC=b$, and $AB=c$. Let $\overline{AP}$ be the altitude from point $A$ to $\overleftrightarrow{BC}$ with foot $P$.
+Let $x$ denote the 'distance from B to P toward C' (so $x<0$ if P is not on $\overline{BC}$).
+Then $(AP)^2=c^2-x^2=b^2-(a-x)^2$ using the Pythagorean theorem @lem-6.pythag twice. We thus have $2ax=c^2+a^2-b^2$.
+By @lem-4.tri.area:
+$$ \begin{aligned}
+\big[ ABC \big]^2=& \frac{a^2}{2^2}(AP)^2= \frac{a^2}{4}\big( c^2-x^2 \big) \\
+=& \frac{1}{4}\big\{ (ac)^2- \frac{(c^2+a^2-b^2)^2}{4}\big\} \\
+=& \frac{1}{4}\big( ac+ \frac{(c^2+a^2-b^2)^2}{2}\big) \big( ac- \frac{(c^2+a^2-b^2)^2}{2}\big) \\
+=& \frac{1}{4}\frac{(c+a)^2-b^2}{2}\frac{(b^2-(c-a)^2}{2}\\
+=& \frac{c+a+b}{2}\frac{c+a-b}{2}\frac{b+a-c}{2}\frac{b+c-a}{2}\\
+=& s(s-b)(s-c)(s-a)
+\end{aligned} $$
+
+:::
+
+```{python}
+#| echo: false
+img1 = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(200,200)
+b=(100,400)
+c=(400,400)
+p=(200,400)
+draw_path(img1,a,b,c,a)
+cv2.line(img1, a, p, color, thickness=1)
+draw_path(img1, (200,380), (220,380), (220,400), thickness=1) #perp marker
+cv2.putText(img1, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img1, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img1, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img1, "P", (p[0], p[1]+20), font, 0.6, color, 2)
+img2 = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(100,200)
+b=(200,400)
+p=(100,400)
+draw_path(img2,a,b,c,a)
+cv2.arrowedLine(img2, b, (50, 400), color, thickness=1, tipLength=0.1)
+cv2.line(img2, a, p, color, thickness=1)
+draw_path(img2, (100,380), (120,380), (120,400), thickness=1) #perp marker
+cv2.putText(img2, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img2, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img2, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img2, "P", (p[0], p[1]+20), font, 0.6, color, 2)
+show_many_images(img1,img2)
+```
+
+While powerful, Heron's formula might not be the optimal way to find a triangle's area given its side lengths.
+
+::: {#exm-6.5.21}
+
+Find the area of a triangle with side lengths 13, 14, 15 in 2 ways: Heron's formula, and 'gluing' together a 3-4-5 and 5-12-13 triangle.<br>
+Find the area of a triangle with side lengths $\sqrt{3}, 2, \sqrt{7}$. Is Heron's formula a good idea?<br>
+Use Heron's formula to derive the area of an equilateral triangle with side length s.<br>
+Find the 3 altitude lengths of a triangle with side lengths 5, 7, 8.
+
+:::
+
+## Construction: perpendiculars
+
+::: {#exm-6.construct.perp}
+
+Given line k and point A (not on k), construct a line thru A perpendicular to k.<br>
+Open the compass enough to construct $\odot A$ to intersect k at 2 points, call them B,C.
+Using the same radius, construct $\odot B, \odot C$. They should intersect at point A, let D be the other point of intersection.
+Then $\overline{AD}$ is the perpendicular bisector of $\overline{BC}$.
+
+:::
+
+::: {.proof}
+
+By construction, $\triangle ABC$ is isosceles, with $AB=AC$.
+Also by construction and SSS congruence @lem-3.sss, $\triangle ABD \cong \triangle ACD$. By CPCTC, $\overline{AD}$ bisects $\angle BAC$.
+It follows that $\overline{AD}$ is the perpendicular bisector of $\overline{BC}$ by @lem-3.6.isosc.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(250,90)
+b=(130,250)
+c=(370,250)
+d=(250,410)
+double_arrow_line(img,(50,250),(450,250))
+cv2.line(img,a,d,color,thickness=1)
+draw_path(img,(250,230),(270,230),(270,250),thickness=1) #perp marker
+cv2.ellipse(img,a,(200,200),0,45,135,color,thickness=1)
+cv2.ellipse(img,b,(200,200),0,30,75,color,thickness=1)
+cv2.ellipse(img,c,(200,200),0,105,150,color,thickness=1)
+for j,lbl in enumerate('ACBD'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.putText(img,'k',(400,240),font,0.6,color,2)
+cv2.circle(img,a,radius=4,color=color,thickness=-1)
+show_geometry_image(img)
+```
+
+::: {#exr-6.7}
+
+Given $\overline{AB}$ with length 1 unit, construct another segment with length $\sqrt{5}$.<br>
+Construct a 45-45-90 triangle, and a 30-60-90 triangle.
+
+:::
+
+## More problems
+
+::: {#exr-6.8.33}
+
+What is the shortest altitude for the 3-4-5 triangle?
+An isosceles triangle has base length 10 and area 60. Find its perimeter.<br>
+If an equilateral triangle has height 8, what is its area?<br>
+Given $\triangle ABC$ with $AB=13$, $BC=37$, D is on $\overline{AC}$ such that $\overline{BD}\perp \overline{AC}$ and $BD=12$. Find $[ABC]$.<br>
+A right triangle has a leg of length 22, and its other 2 side lengths are also integers. What are they?<br>
+Given $\triangle ABC$ with $m \angle A=30^\circ$, $m \angle B=60^\circ$, point D is on $\overline{AC}$ with $BC=CD$, and $AD=6-2 \sqrt{3}$. Find the perimeter of $\triangle ABC$.
+
+:::
+
+::: {#exr-6.8.31}
+
+Why does the below give another proof of the Pythagorean theorem?
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500, 500, 3), dtype=np.uint8) * 255
+a=(75,75)
+b=(425,75)
+c=(425,425)
+d=(75,425)
+e=(75,275)
+f=(225,75)
+cv2.putText(img,'a',(150,55),font,0.6,color,2)
+cv2.putText(img,'b',(55,175),font,0.6,color,2)
+img1=img.copy()
+draw_path(img,a,b,c,d,a,(225,275),c)
+cv2.line(img,e,(425,275),color,thickness=2)
+cv2.line(img,f,(225,425),color,thickness=2)
+draw_path(img1,a,b,c,d,a)
+draw_path(img1,e,f,(425,225),(275,425),e)
+cv2.putText(img,'a',(55,350),font,0.6,color,2)
+cv2.putText(img,'b',(325,55),font,0.6,color,2)
+cv2.putText(img1,'c',(155,195),font,0.6,color,2)
+show_many_images(img,img1)
+```
+
+::: {#exr-6.8.32}
+
+Below, right angles are as marked, $\overline{AD}\parallel \overline{BC}$, $\overline{AE}\parallel \overline{CD}$, and $AB=BC=1$. Find AE.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(200,100)
+b=(100,100)
+c=(100,200)
+d=(200,300)
+e=(400,300)
+draw_path(img,a,b,c,d,e,a,c)
+cv2.line(img,a,d,color,thickness=2)
+draw_path(img,(120,100),(120,120),(100,120),thickness=1) #perp markers
+draw_path(img,(114,186),(128,200),(114,214),thickness=1)
+draw_path(img,(200,280),(220,280),(220,300),thickness=1)
+for j,lbl in enumerate('CADBE'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0]-10,p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+::: {#exr-6.8.35}
+
+Below, right angles are as marked, $AD=CD=3$, and $AE=BE=4$. Show $\triangle ABC \sim \triangle FBE$. Find $DG, EF$, and then $[AEFGD]$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(100,100)
+b=(420,100)
+c=(100,340)
+d=(100,220)
+e=(260,100)
+f=get_intersection(e,(e[0]+6,e[1]+8),b,c)
+g=get_intersection(d,(d[0]+6,d[1]+8),b,c)
+draw_path(img,e,f,b,a,c,f)
+cv2.line(img,d,g,color,thickness=2)
+draw_path(img,(120,100),(120,120),(100,120),thickness=1) #perp markers
+draw_path(img,(f[0]-12,f[1]-16),(f[0]+4,f[1]-28),(f[0]+16,f[1]-12),thickness=1)
+draw_path(img,(g[0]-12,g[1]-16),(g[0]+4,g[1]-28),(g[0]+16,g[1]-12),thickness=1)
+for j,lbl in enumerate('ACBFEG'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.putText(img,'D',(80,220),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-6.8.40}
+
+Below, right angles are as marked, $AB=3$, $BD=6$, and $DE=5$. Find $AE$ and $AC$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((400, 500, 3), dtype=np.uint8) * 255
+a=(100,100)
+b=(220,100)
+c=(220,190)
+d=(220,340)
+e=(420,340)
+draw_path(img,a,b,d,e,a)
+draw_path(img,(200,100),(200,120),(220,120),thickness=1) #perp markers
+draw_path(img,(220,320),(240,320),(240,340),thickness=1)
+for j,lbl in enumerate('BACDE'):
+    p=globals()[lbl.lower()]
+    q=-20 if j%2 else 10
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+show_geometry_image(img)
+```

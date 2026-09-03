@@ -334,7 +334,7 @@ In words, for 2 similar triangles, the ratio between any 2 corresponding altitud
 
 ::: {.proof}
 
-Since $m \angle APB=m \angle DQE=90^\circ$ and $m \angle B=m \angle E$, $\triangle ABP \sim \triangle DEQ$ by AA similarity @lem-5.aa. So $AP/DQ=AB/DE=k$. Since $BC/EF=AB/DE=k$ too, by @lem-4.tri-area
+Since $m \angle APB=m \angle DQE=90^\circ$ and $m \angle B=m \angle E$, $\triangle ABP \sim \triangle DEQ$ by AA similarity @lem-5.aa. So $AP/DQ=AB/DE=k$. Since $BC/EF=AB/DE=k$ too, by @lem-4.tri.area
 $$\frac{[ABC]}{[DEF]}= \frac{AP \cdot BC/2}{DQ \cdot EF/2}= \frac{AP}{BQ}\cdot \frac{BC}{EF}=k^2$$
 
 :::
@@ -566,7 +566,7 @@ A ttiangle has sides 4, 6, 9. If a 2nd similar triangle has 36 as 1 of side leng
 ::: {#exr-5.7.26}
 
 For both figures below (not to scale), decide if the given side lengths are possible. If not, change as few of them as possible to fix.<br>
-(Top panel) Given $\overline{DE}\parallel \overline{BC}$. Can $AD=7$, $BD=12$, $AE=4$, and $DE=9$?
+(Top panel) Given $\overline{DE}\parallel \overline{BC}$. Can $AD=7$, $BD=12$, $AE=4$, and $DE=9$?<br>
 (Bottom panel) Given $m \angle B=m \angle D$, and $BE=CE$. Can $AB=4$, $AE=3$, $DE=6$, and $CD=5$?
 
 :::

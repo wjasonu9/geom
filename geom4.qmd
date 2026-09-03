@@ -110,7 +110,7 @@ The <i>area</i> of a figure is (roughly speaking) the number (possibly with a fr
 An <i>altitude</i> (or height) of a triangle is a perpendicular segment from a vertex to the opposite side (possibly extended), called the <i>base</i> corresponding to that altitude. The <i>foot</i> corresponding to that altitude is the point where it meets its base. We commonly use 'altitude' and 'base' to refer to either the segments or their lengths.
 Below, in all 3 cases, $\overline{AP}$ is an altitude of $\triangle ABC$ from vertex $A$. The corresponding base is $\overline{BC}$ and foot is point $P$. For an obtuse triangle, 1 altitude does not intersect its base.
 
-::: {#lem-4.tri-area}
+::: {#lem-4.tri.area}
 
 The area of a triangle is half of any altitude times its corresponding base. Ie, in any of the 3 cases below, $[ABC]=AP \cdot BC/2$.
 
@@ -210,7 +210,7 @@ If point $D$ is such that $\overline{AD}\parallel \overline{BC}$, then $[DBC]=[A
 ::: {.proof}
 
 Let point $P$ on $\overleftrightarrow{BC}$ be the foot of the altitude for base $\overline{BC}$. Then $\overline{AP}$ is also an altitude of $\triangle ABD$ for base $\overline{BD}$.
-Then $[ABC]=AP \cdot BC/2$ and $[ABD]=AP \cdot BD/2$ by @lem-4.tri-area. It follows that $[ABC]/[ABD]=BC/BD$.<br>
+Then $[ABC]=AP \cdot BC/2$ and $[ABD]=AP \cdot BD/2$ by @lem-4.tri.area. It follows that $[ABC]/[ABD]=BC/BD$.<br>
 Let points $P,Q$ on $\overleftrightarrow{BC}$ be the foot of the altitude for base $\overline{BC}$ from vertices $A,D$, resp.
 Then figure $ADQP$ has 4 right angles by definition of altitude and @lem-2.7, so it is a rectangle with $AP=DQ$ by @lem-4.rect. Thus, $[DBC]=DQ \cdot BC/2=AP \cdot BC/2=[ABC]$.
 
@@ -255,7 +255,8 @@ show_geometry_image(img)
 
 ::: {#exr-4.4}
 
-What happens to a triangle's area if its base length is doubled, and its altitude is tripled?
+What happens to a triangle's area if its base length is doubled, and its altitude is tripled?<br>
+Prove the 2 angles in a right triangle excluding the right angle are complementary.
 
 :::
 
