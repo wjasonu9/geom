@@ -132,7 +132,7 @@ $\overline{CD}$ is the <i>perpendicular bisector</i> of $\overline{AB}$ if it bi
 
 ## Application 1
 
-::: {#exr-3.pgram}
+::: {#lem-3.pgram}
 
 For the figure below, the following are equivalent.
 

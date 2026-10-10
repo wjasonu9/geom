@@ -311,6 +311,13 @@ for lbl,q in zip('ABCDEF',[(10,0),(-10,20),(10,0),(0,20),(-10,20),(0,20)]):
 show_geometry_image(img)
 ```
 
+::: {#exr-5.3.tw}
+
+Given equilateral $\triangle ABC$, with D and E the midpoints of $\overline{AB}$ and $\overline{BC}$, find $[ABC]/[ADE]$.
+Is knowing that $\triangle ABC$ is equilateral needed to find this ratio?
+
+:::
+
 ## SSS similarity
 
 ::: {#lem-5.sss}

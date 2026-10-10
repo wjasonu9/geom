@@ -128,7 +128,7 @@ An isosceles triangle has 2 legs of length 13, and base of length 10. What is th
 
 ::: {#exr-6.1.yt}
 
-Below, regions A and D are squares. The areas of regions C and D are 6 and 9, resp. Find the area of region B.
+Below, regions A and D are squares. The areas of regions C and D are 6 and 9, resp. Find the area of region B. (<a href=https://youtu.be/yDEiMAIf1Zw>video</a>)
 
 :::
 
@@ -145,6 +145,30 @@ cv2.putText(img,'A',midpt(a,c),font,1,color,2)
 cv2.putText(img,'B',(310,200),font,1,color,2)
 cv2.putText(img,'C',(280,280),font,1,color,2)
 cv2.putText(img,'D',(355,265),font,1,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-6.1.yt2}
+
+Below, $\overline{AC}\perp \overline{BD}$, $AB=1$, $BC=2$, and $CD=3$. Find $AD$. (<a href=https://youtu.be/TmQk-pvaUzc>video</a>)
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,500,3),dtype=np.uint8)*255
+a=(160,80)
+b=(80,140)
+c=(160,323)
+d=(397,140)
+draw_path(img,a,b,c,d,a)
+cv2.line(img,a,c,color,thickness=1)
+cv2.line(img,b,d,color,thickness=1)
+draw_path(img,(160,120),(180,120),(180,140), thickness=1) #perp marker
+for j,lbl in enumerate('ABDC'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0]-10,p[1]+q),font,0.6,color,2)
 show_geometry_image(img)
 ```
 
@@ -200,7 +224,7 @@ An equilateral triangle with side length $s$ has area $s^2 \sqrt{3}/4$.
 
 :::
 
-Knowing how to derive an equilateral triangle's  area is more important than memorizing its formula.
+Knowing how to derive an equilateral triangle's area is more important than memorizing its formula.
 
 ::: {.proof}
 

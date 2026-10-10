@@ -1,0 +1,793 @@
+---
+title: "Geometry Ch7"
+format:
+  html: default
+#    number-sections: true
+#  pdf:
+#    number-sections: true
+# thm lem cor prp cnj def exm exr
+---
+
+```{python}
+from helper import *
+```
+
+## Bisectors
+Much of mastering geometry is mastering triangles. This chapter defines points, lines, and circles that all triangles have, and explores their properties.
+We start with 2 helpful results to that end. A <i>cevian</i> of a triangle is a line segment from any vertex to the opposite edge.
+
+::: {#lem-7.1.equidis}
+
+Given $\overline{AB}$ and its perpendicular bisector line k, a point is on line k if and only if it is equidistant from A and B.
+In other words, line k is exactly the set of points equidistant from A and B.
+
+:::
+
+::: {.proof}
+
+The midpoint $M$ of $\overline{AB}$ is both on line k and equidistant from A and B. Assume C is another point.
+"$\to$" If C is on line k, then $\triangle AMC \cong \triangle BMC$ by SAS congruence, so $AC=BC$.
+"$\leftarrow$" If $AC=BC$, then $\triangle AMC \cong \triangle BMC$ by SSS congruence, so $m \angle AMC=m \angle BMC=90^\circ$, ie $\overline{CM}\perp \overline{AB}$.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((500,500,3),dtype=np.uint8)*255
+a=(100,250)
+b=(400,250)
+c=(250,100)
+m=(250,250)
+cv2.line(img,a,b,color,thickness=2)
+double_arrow_line(img,(250,50),(250,450), color)
+draw_path(img,a,c,b,thickness=1)
+add_tick(img,a,m)
+add_tick(img,b,m)
+draw_path(img,(230,250),(230,230),(250,230), thickness=1) #perp marker
+cv2.putText(img,'A',(a[0]-20,a[1]),font,0.6,color,2)
+cv2.putText(img,'B',(b[0]+10,b[1]),font,0.6,color,2)
+cv2.putText(img,'C',(c[0]+10,c[1]),font,0.6,color,2)
+cv2.putText(img,'M',(m[0]+10,m[1]-10),font,0.6,color,2)
+cv2.putText(img,'k',(260,400),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#lem-7.1.angle.bisect}
+
+$\overrightarrow{BD}$ is the angle bisector of $\angle ABC$ if and only if D is equidistant from $\overrightarrow{BA}$ and $\overrightarrow{BC}$.
+In other words, an angle bisector is exactly the set of points equidistant from the 2 rays that form the angle.
+
+:::
+
+::: {.proof}
+
+Let E,F be on $\overrightarrow{BA}, \overrightarrow{BC}$ such that $\overline{DE}\perp \overrightarrow{BA}$ and $\overline{DF}\perp \overrightarrow{BC}$.
+Then $DE, DF$ are the distances from D to $\overrightarrow{BA}, \overrightarrow{BC}$ by @lem-6.dist.
+"$\to$" If $m \angle ABD=m \angle CBD$, then $\triangle BDE \cong \triangle BDF$ by AAS congruence @lem-3.aas, so $DE=DF$.
+"$\leftarrow$" If $DE=DF$, then $\triangle BDE \cong \triangle BDF$ by HL congruence @lem-6.hl, so $m \angle ABD=m \angle CBD$. 
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((500,500,3),dtype=np.uint8)*255
+a=(400,100)
+b=(100,250)
+c=(400,400)
+d=(400,250)
+e=(340,130)
+f=(340,370)
+cv2.arrowedLine(img,b,(460,70), color, thickness=2,tipLength=3e-2)
+cv2.arrowedLine(img,b,(460,430), color, thickness=2,tipLength=3e-2)
+cv2.arrowedLine(img,b,(460,250), color, thickness=2,tipLength=3e-2)
+draw_path(img,e,d,f,thickness=1)
+cv2.ellipse(img,b,(25,25),0,-27,27,color,thickness=1) #angle marker
+draw_path(img,(360,120),(370,140),(350,150), thickness=1) #perp markers
+draw_path(img,(360,380),(370,360),(350,350), thickness=1)
+cv2.circle(img,a,radius=4,color=color,thickness=-1)
+cv2.circle(img,c,radius=4,color=color,thickness=-1)
+for j,lbl in enumerate('BCAFE'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0]-5,p[1]+q),font,0.6,color,2)
+cv2.putText(img,'D',(d[0],d[1]-10),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-7.1}
+
+If line k is the perpendicular bisector of both $\overline{AB}$ and $\overline{CD}$, which of these is true and why: $AB=CD$, $\overline{AB}\parallel \overline{CD}$, and $AC=BD$.<br>
+Describe the set of points equidistant from 2 intersecting lines.<br>
+Describe the set of points equidistant from 2 parallel lines.
+
+:::
+
+## Circumcenter
+
+::: {#lem-7.circumctr}
+
+Given $\triangle ABC$, the perpendicular bisectors of its 3 sides are concurrent at a point called the <i>circumcenter</i> (point O below).
+There is a unique circle passing thru A, B, and C. It is centered at the circumcenter. It is called the <i>circumcircle</i>, which <i>circumscribes</i> $\triangle ABC$, and has <i>circumradius</i> $OA$.<br>
+In the special case where $\triangle ABC$ is a right triangle, the circumcenter is the midpoint of the hypotenuse.
+
+:::
+
+In particular, just as 2 points determine a line, 3 non collinear points determine a circle.
+
+::: {.proof}
+
+Let O be the intersection of the perpendicular bisectors of $\overline{AB}$ and $\overline{BC}$.
+Then by @lem-7.1.equidis: $OA=OB$ and $OB=OC$, so $OA=OC$, so O is on the perpendicular bisector of $\overline{AC}$, and $\odot O$ with radius $OA=OB=OC$ circumscribes $\triangle ABC$.<br>
+Let $\odot Q$ also circumscribe $\triangle ABC$. Then $QA=QB=QC$, so Q is on the perpendicular bisectors of $\overline{AB}$, $\overline{BC}$, and $\overline{AC}$, so $Q=O$, and $\odot Q$ and $\odot O$ have the same radius.<br>
+If $\triangle ABC$ is a right triangle, say with $m \angle C=90^\circ$, let $\overline{MO}$ be the perpendicular bisector of $\overline{AC}$, with M and O its intersections with $\overline{AC}$ and $\overline{AB}$.
+Then $\overline{MO}\parallel \overline{AB}$ by @lem-2.7, and $AM=CM$, so $AO=BO$ by @lem-5.sas.
+The perpendicular bisector of $\overline{AB}$ thus passes thru O, so it is the circumcenter of $\triangle ABC$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600,600,3), dtype=np.uint8) * 255
+a=(230,90)
+b=(90,370)
+c=(510,370)
+o=(300,300)
+draw_path(img,a,b,c,a)
+cv2.line(img,o,(300,370),color,thickness=1)
+cv2.line(img,o,midpt(a,b),color,thickness=1)
+cv2.line(img,o,midpt(a,c),color,thickness=1)
+draw_path(img,(280,370),(280,350),(300,350),thickness=1) #perp markers
+draw_path(img,(170,210),(190,220),(180,240),thickness=1)
+draw_path(img,(355,245),(340,230),(355,215),thickness=1)
+cv2.circle(img,o,radius=221,color=color,thickness=1)
+cv2.putText(img,'A',(230,80),font,0.6,color,2)
+cv2.putText(img,'B',(70,380),font,0.6,color,2)
+cv2.putText(img,'C',(520,370),font,0.6,color,2)
+cv2.putText(img,'O',(310,320),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+```{python}
+#| echo: false
+img = np.ones((500,500,3), dtype=np.uint8) * 255
+a=(100,120)
+b=(420,360)
+c=(100,360)
+m=(100,240)
+o=(260,240)
+draw_path(img,o,m,a,b,c,m)
+add_tick(img,a,m)
+add_tick(img,c,m)
+draw_path(img,(100,340),(120,340),(120,360),thickness=1) #perp markers
+draw_path(img,(100,220),(120,220),(120,240),thickness=1)
+cv2.circle(img,o,radius=200,color=color,thickness=1)
+for j,lbl in enumerate('ABCOM'):
+    p=globals()[lbl.lower()]
+    q=10 if j%2 else -20
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exm-7.8}
+
+Find the circumradius of an equilateral triangle with side length s.<br>
+Can you construct a triangle whose circumcenter is outside it? Hint: a right triangle's circumcenter is on its boundary.
+
+:::
+
+
+## Incenter
+
+::: {#lem-7.tangent}
+
+Line k is tangent to $\odot O$ at point P if and only if line k is perpendicular to $\overline{OP}$.
+
+:::
+
+::: {.proof}
+
+Let A be a point besides P on line k.
+"$\to$" Consider $\overline{OA}$, let B be the point where it intersects $\odot O$.
+Then $OA=OB+BA=OP+BA>OP$, so P is the closest point to O on line k, so line k is perpendicular to $\overline{OP}$ by @lem-6.dist.
+"$\leftarrow$" If line k is perpendicular to $\overline{OP}$, then $OA>OP$ by @lem-6.dist, so A is not on line k.
+Line k thus intersects $\odot O$ at 1 point (namely, P), ie is tangent to $\odot O$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500,500,3), dtype=np.uint8) * 255
+a=(360,400)
+b=(336,363) #(336,368)
+o=(240,240)
+p=(240,400)
+draw_path(img,p,o,a,thickness=1)
+double_arrow_line(img,(50,400),(450,400),color)
+cv2.circle(img,o,radius=160,color=color,thickness=2)
+for j,lbl in enumerate('ABPO'):
+    p1=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p1[0],p1[1]+q),font,0.6,color,2)
+cv2.putText(img,'k',(100,390),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#lem-7.inctr}
+
+Given $\triangle ABC$, its 3 angle bisectors are concurrent at a point called the <i>incenter</i> (point $I$ below).
+There is a unique circle tangent to all 3 of its sides. It is centered at the incenter. It is called the <i>incircle</i>, which is <i>inscribed</i> in $\triangle ABC$, and has <i>inradius</i> $ID$.
+
+:::
+
+::: {.proof}
+
+Let I be the intersection of the angle bisectors of $\angle A$ and $\angle B$.
+Let D, E, F be such that $\overline{AB}\perp \overline{ID}$, $\overline{BC}\perp \overline{IE}$, and $\overline{AC}\perp \overline{IF}$.
+Then $ID=IF$ and $ID=IE$, so $IE=IF$, and $\overline{IC}$ bisects $\angle C$, all by @lem-7.1.angle.bisect.
+Further, $\odot I$ with radius $ID=IE=IF$ is tangent to all 3 sides by @lem-7.tangent.<br>
+Conversely, for any circle tangent to all 3 sides, its 3 radii to those 3 sides must each be perpendicular.
+The center must thus be equidistant from all 3 sides, so it must be on all 3 angle bisectors, so its center must be $I$, and its radius must be the distance to any of the 3 sides.
+This circle is thus $\odot O$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500,600,3), dtype=np.uint8) * 255
+a=(100,100)
+b=(100,400)
+c=(500,400)
+d=(100,300)
+e=(200,400)
+f=(260,220)
+i=(200,300)
+draw_path(img,a,b,c,a)
+cv2.circle(img,i,radius=100,color=color,thickness=1)
+for j,lbl in enumerate('BAIC'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0]+5,p[1]+q),font,0.6,color,2)
+img1=img.copy()
+draw_path(img,a,i,b,thickness=1)
+cv2.line(img,c,i,color)
+draw_path(img1,d,i,e,thickness=1)
+cv2.line(img1,f,i,color)
+cv2.putText(img1,'D',(d[0]-20,d[1]),font,0.6,color,2)
+cv2.putText(img1,'E',(e[0],e[1]+20),font,0.6,color,2)
+cv2.putText(img1,'F',(f[0]+10,f[1]),font,0.6,color,2)
+show_many_images(img,img1)
+```
+
+::: {#lem-7.inr.area}
+
+The area of a triangle is the product of its inradius and semi perimeter. In symbols, $[ABC]=rs$.
+
+:::
+
+::: {.proof}
+
+Given $\triangle ABC$ with incenter $I$ as above, we have $[ABC]=[AIB]+[BIC]+[AIC]$ $=AB \cdot ID/2+ BC \cdot IE/2+AC \cdot IF/2$ $=(AB+BC+AC)\cdot r/2=rs$.
+
+:::
+
+Angle bisectors are useful beyond the incenter and its properties.
+
+::: {#lem-7.abt}
+
+<i>Angle bisector theorem:</i> given $\triangle ABC$ with D on $\overline{BC}$ such that $\overline{AD}$ bisects $\angle BAC$, then $AB/BD=AC/CD$.
+
+:::
+
+::: {.proof}
+
+Draw a line thru B parallel to $\overline{AC}$. Extend $\overline{AD}$ to this line. Let E be the point of intersection.
+Then $\triangle ACD \sim \triangle EBD$ by @lem-5.sim.plel2, so $AC/CD=BE/BD$, and $m \angle CAD=m \angle BED$.
+So $\triangle ABE$ is isosceles with $AB=BE$ by @lem-3.6.isosc, and $AC/CD=AB/BD$.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500,600,3), dtype=np.uint8) * 255
+a=(244,100)
+b=(100,292)
+c=(500,292)
+e=(292,436)
+d=get_intersection(b,c,a,e)
+draw_path(img,a,b,c,a,d)
+cv2.line(img,d,e,color)
+double_arrow_line(img,(60,262),(332,466),color,thickness=1)
+cv2.ellipse(img,a,(25,25),0,37,127,color,thickness=1) #angle markers
+cv2.ellipse(img,e,(25,25),0,217,262,color,thickness=1)
+cv2.arrowedLine(img,(324,160),(332,166),color,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img,(180,352),(188,358),color,tipLength=1.0)
+for j,lbl in enumerate('BACED'):
+    p1=globals()[lbl.lower()]
+    q,r=(0,-15) if j%2 else (-10,20)
+    cv2.putText(img,lbl,(p1[0]+q,p1[1]+r),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-7.3.4}
+
+If $\triangle ABC$ has $m \angle C=90^\circ$ and incenter $I$, find $m \angle AIB$ if it is a 45-45-90 triangle.
+What about if it is a 30-60-90 triangle?
+For any triangle (not necessarily a right triangle), find $m \angle AIB$ in terms of $m \angle C$.<br>
+If $\triangle ABC \sim \triangle DEF$, and $r=AB/DE$, then r is also the ratio of their circumradii and inradii.
+
+:::
+
+## Triangle medians
+
+A <i>median</i> of a triangle is a segment from any vertex to its opposite side's midpoint.
+
+::: {#lem-7.centroid}
+
+A triangle's 3 medians are concurrent at a point called the <i>centroid</i>.
+The 3 medians split the triangle into 6 smaller triangles of equal area.
+Conversely, any 3 concurrent cevians that split the triangle into 6 smaller triangles of equal area must be medians.
+On any median, the centroid is 2/3 of the way from a vertex to the opposite side.
+
+:::
+
+::: {.proof}
+
+Given $\triangle ABC$ with medians $\overline{AD}$ and $\overline{BE}$ that intersect at G, and F on $\overline{AB}$ such that $\overline{CF}$ passes thru G.
+For convenience, let $x:=[ABC]/6$. We use @lem-4.3 repeatedly.
+Since D is the midpoint of $\overline{BC}$, we have $[ABD]=[ACD]$ and $[BDG]=[CDG]$, and so $[ABG]=[ACG]$.
+Since E is the midpoint of $\overline{AC}$, we have $[ABE]=[BCE]$ and $[AEG]=[CEG]$, and so $[ABG]=[BCG]$.
+Thus, $[ABG]=[ACG]=[BCG]=2x$, and $[BDG]=[CDG]=[CEG]=[AEG]=x$. Next,
+$$\frac{AF}{BF}= \frac{[AFG]}{[BFG]}= \frac{[ACF]}{[BCF]}= \frac{[AFG]+2x}{[BFG]+2x}$$
+Cross multiplying and using $x>0$, we get $[AFG]=[BFG]$, so $AF=BF$, $\overline{CF}$ is a median, and it is concurrent with the other 2.
+We have also shown all 6 small triangles that the medians create have area x.
+Conversely, if all we know is that $\overline{AD}$, $\overline{BE}$, and $\overline{CF}$ are cevians, concurrent at G, that split $\triangle ABC$ into 6 smaller triangles of equal area, then $[ABD]=[ACD]$, so $BD=CD$ and $\overline{AD}$ is in fact a median.
+Similarly, $\overline{BE}$ and $\overline{CF}$ are medians too.
+Finally, from $[ABD]=3x$ and $[BDG]=x$ we get $AD=3DG$, ie the centroid is 2/3 of the way from a vertex to the opposite side.
+
+::: 
+
+```{python}
+#| echo: false
+img = np.ones((500,600,3), dtype=np.uint8) * 255
+a=(230,90)
+b=(90,370)
+c=(510,370)
+d=(300,370)
+e=midpt(a,c)
+f=midpt(a,b)
+g=get_intersection(a,d,b,e)
+draw_path(img,a,b,c,a)
+for j,lbl in enumerate('ABCDEFG'):
+    p1=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p1[0],p1[1]+q),font,0.6,color,2)
+img1=img.copy()
+cv2.line(img,a,d,color,thickness=1)
+cv2.line(img,b,e,color,thickness=1)
+cv2.line(img,c,f,color,thickness=1)
+add_tick(img,b,d)
+add_tick(img,c,d)
+for q in [-5,5]:
+    add_tick(img,a,e,offset_px=q)
+    add_tick(img,c,e,offset_px=q)
+show_geometry_image(img)
+```
+
+::: {#lem-7.medial}
+
+Given $\triangle ABC$ with D, E, F the midpoints of its sides as below. The following are equivalent:
+
+- D, E, F are their respective sides' midpoints.
+- $\overline{AB}\parallel \overline{DE}$, $\overline{AC}\parallel \overline{DF}$, and $\overline{BC}\parallel \overline{EF}$.
+- $\triangle DEF \cong \triangle AFE \cong \triangle FBD \cong \triangle EDC$.
+
+In which case $\triangle DEF \sim \triangle ABC$ (with ratio 1/2) is called the <i>medial triangle</i>.
+Further, $\triangle DEF$ has the same medians (and hence, same centroid) as $\triangle ABC$.
+
+:::
+
+::: {.proof}
+
+1 $\to$ 2 follows from @lem-5.sas. 2 $\to$ 3: from $\overline{AB}\parallel \overline{DE}$, we get $m \angle AFE=m \angle DEF$ by @lem-2.7.
+Likewise, from $\overline{AC}\parallel \overline{DF}$, we get $m \angle AEF=m \angle DFE$.
+So $\triangle DEF \cong \triangle AFE$ by ASA congruence @lem-3.asa. By symmetric arguments, we also get $\triangle DEF \cong \triangle FBD$ and $\triangle DEF \cong \triangle EDC$.<br>
+3 $\to$ 1: CPCTC says that $AF=BF$, $AE=CE$, and $BD=CD$.<br>
+Since $\overline{AF}\parallel \overline{ED}$ and $\overline{AE}\parallel \overline{FD}$, we have that $\overline{AD}$ bisects $\overline{EF}$ by @lem-3.pgram.
+$\overline{AD}$ is thus a median for $\triangle DEF$, as are $\overline{BE}$ and $\overline{CF}$ by the same argument.
+
+:::
+
+```{python}
+#| echo: false
+draw_path(img1,d,e,f,d,thickness=1)
+cv2.arrowedLine(img1,(200,370),(210,370),color,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img1,(270,230),(280,230),color,tipLength=1.0)
+cv2.arrowedLine(img1,(300,160),(307,167),color,tipLength=1.0)
+cv2.arrowedLine(img1,(230,300),(237,307),color,tipLength=1.0)
+cv2.arrowedLine(img1,(190,170),(195,160),color,tipLength=1.0)
+cv2.arrowedLine(img1,(330,310),(335,300),color,tipLength=1.0)
+show_geometry_image(img1)
+```
+
+::: {#exm-7.4.20}
+
+For any right triangle, show that the median from the right angle to the circumcenter has half the hypotenuse's length.<br>
+Find the lengths of all medians for the 3-4-5 triangle.<br>
+Find the lengths of the medians for a triangle with side lengths 7, 7, 10. Hint: 1st find it from the vertex angle to the base. Find the circumradius and inradius.
+
+:::
+
+::: {#exr-7.4cart}
+
+Let $A=(x_1,y_1)$, $B=(x_2,y_2)$, $C=(x_3,y_3)$. Prove that the centroid of $\triangle ABC$ is
+$$G= \big( \frac{x_1+x_2+x_3}{3}, \frac{y_1+y_2+y_3}{3}\big)$$
+with these steps:
+
+- If $D$ is the midpoint of $\overline{BC}$, $E$ is the midpoint of $\overline{AC}$, and $F$ is the midpoint of $\overline{AB}$, find the Cartesian coordinates of D,E,F.
+- Show that G is on each of: $\overline{AD}$, $\overline{BE}$, $\overline{CF}$.
+
+:::
+
+This shows the centroid is the center of mass of a triangle (assuming equal point masses at the vertices).
+Finding the centroid is a 2D problem that can be reduced to 2 1D problems.
+
+
+## Orthocenter
+
+::: {#lem-7.orthoctr}
+
+A triangle's 3 altitudes are concurrent at the <i>orthocenter</i>, which is the circumcenter for the triangle of which the original is the medial triangle.<br>
+If $\triangle ABC$ is a right triangle with $m \angle C=90^\circ$, then C is the orthocenter.
+
+:::
+
+::: {.proof}
+
+Given $\triangle ABC$, draw lines thru each vertex parallel to the opposite side.
+They will form a larger $\triangle JKL$ as below, of which $\triangle ABC$ is the medial triangle, by construction and @lem-7.medial, which also says that A, B, C are the midpoints of the sides of $\triangle JKL$.
+The altitudes for A, B, and C are perpendicular to $\overline{KL}$, $\overline{JL}$, and $\overline{JK}$, respectively by @lem-2.7.
+These altitudes are thus perpendicular bisectors of the 3 sides of $\triangle JKL$, which are concurrent by @lem-7.circumctr.<br>
+For a right triangle, the 2 legs are also altitudes, and they intersect at the right angle, which must be the orthocenter.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500,600,3), dtype=np.uint8) * 255
+h=(300,300)
+l=(230,90)
+k=(90,370)
+j=(510,370)
+c=(300,370)
+b=midpt(l,j)
+a=midpt(l,k)
+draw_path(img,a,b,c,a)
+draw_path(img,(300,230),c,k,l,j,c,thickness=1)
+for ji,lbl in enumerate('LKJCBAH'):
+    p1=globals()[lbl.lower()]
+    q=25 if ji%2 else -10
+    cv2.putText(img,lbl,(p1[0],p1[1]+q),font,0.6,color,2)
+draw_perp(img,a,b,c)
+draw_perp(img,b,a,c)
+draw_path(img,(320,230),(320,250),(300,250),thickness=1) #perp markers
+draw_path(img,(312,306),(320,290),(336,298),thickness=1)
+draw_path(img,(280,320),(265,305),(250,320),thickness=1)
+cv2.arrowedLine(img,(200,370),(210,370),color,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img,(270,230),(280,230),color,tipLength=1.0)
+cv2.arrowedLine(img,(300,160),(307,167),color,tipLength=1.0)
+cv2.arrowedLine(img,(230,300),(237,307),color,tipLength=1.0)
+cv2.arrowedLine(img,(200,150),(205,140),color,tipLength=1.0)
+cv2.arrowedLine(img,(340,290),(345,280),color,tipLength=1.0)
+show_geometry_image(img)
+```
+
+We have now covered 4 sets of 3 special lines, all concurrent, for any triangle.
+It is helpful to keep in mind for problem solving: once a triangle and any 2 of those special lines are known, then so is the last.
+To find lengths, try to build right triangles.
+
+::: {#exm-7.5.25}
+
+Given $\triangle ABC$ with orthocenter H, show that $\triangle ABH$ has orthocenter C (assuming A, B, H are not collinear).
+
+:::
+
+Aside: in any triangle, the circumcenter O, centroid G, and orthocenter H are collinear (in that order), and $GH/GO=2$.
+The line passing thru all 3 is the <i>Euler line</i>, named after Leonhard Euler, 1 of the most prolific mathematicians ever.
+He is associated with the 'f(x)' notation for functions, summation notation with $\Sigma$, $i= \sqrt{-1}$, $e$ (called "Euler's number") for the base of natural logarithms, and using $\pi$ (to denote an important constant we later discuss).
+He linked the last 3 with $e^{\pi i}=-1$.
+
+::: {#exr-7.5}
+
+If A=(0,3), B=(4,0), and C=(0,0), find Cartesian coordinates for the circumcenter, incenter, centroid, and orthocenter.<br>
+Show that a triangle is isosceles if and only if 2 (or more) of its medians have the same length if and only if 2 (or more) of its altitudes have the same length.<br>
+Given $\triangle ABC$, if D is on $\overline{BC}$ such that $\overline{AD}$ is both an altitude and bisects $\angle A$, show that it is also a median.<br>
+Given equilateral $\triangle ABC$, with D and E the midpoints of $\overline{AB}$ and $\overline{BC}$, find $[ABC]/[ADE]$.
+Is knowing that $\triangle ABC$ is equilateral needed to find this ratio?<br>
+Show that if $\triangle ABC$ is equilateral, then all 4 centers are the same point.
+If A=(-1,0), B=(1,0), and C is on the positive y axis, where would this center be? And what are the circumradius and inradius?
+(Optional) If it is known that 2 of the 4 centers of $\triangle ABC$ are the same point, then it is equilateral.<br>
+
+:::
+
+Aside: Given any triangle, its <i>outer Napoleon triangle</i> is constructed by 1st drawing equilateral triangles using each side as below, and then joining their centers.
+Similarly, we get the <i>inner Napoleon triangle</i> if for each side we draw the equilateral triangle inward and then join their centers.
+Both Napoleon triangles are always equilateral.
+Napoleon's friend and advisor Mascheroni is rumored to have discovered this, but gave Napoleon credit.
+
+```{python}
+#| echo: false
+img = np.ones((1000, 900, 3), dtype=np.uint8) * 255
+def scale_pt(x,y):
+    return (350 + int(x * 100), 600 - int(y * 100))
+a=scale_pt(0,3)
+b=scale_pt(4,0)
+c=scale_pt(0,0)
+d=find_eq_tri(c,b)
+e=find_eq_tri(a,c)
+f=find_eq_tri(b,a)
+draw_path(img,a,b,c,a,f,b,d,c,e,a)
+e1=scale_pt(-3**0.5/2,3/2)
+e2=scale_pt(3**0.5/2,3/2)
+f1=scale_pt(2,-2/3**0.5)
+f2=scale_pt(2,2/3**0.5)
+draw_path(img,e1,f1,find_eq_tri(f1,e1),e1,thickness=1)
+draw_path(img,e2,f2,find_eq_tri(e2,f2),e2,thickness=1)
+for j,lbl in enumerate('ABCDFE'):
+    p=globals()[lbl.lower()]
+    r,q=(0,20) if j%2 else (10,-10)
+    cv2.putText(img,lbl,(p[0]+r,p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+## Construction: angle bisectors
+
+::: {#exm-7.construct.ab}
+
+Given $\angle A$, construct its angle bisector.<br>
+Draw (part of) a circle centered at A to find 2 points on the 2 sides of $\angle A$ equidistant from A, call them B,C.
+Then, using the same radius, find the other point of intersection (besides A) of $\odot B$ and $\odot C$, call it D.
+Then $\overline{AD}$ bisects $\angle BAC$.
+
+:::
+
+::: {.proof}
+
+Since $AB=AC=BD=CD$ by construction, we have $\triangle BAD \cong \triangle BCD$ by SSS congruence @lem-3.sss, and both are isosceles.
+Thus, $m \angle BAD=m \angle BCD$ by @lem-3.6.isosc.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((500,600,3), dtype=np.uint8) * 255
+a=(60,360)
+b=(360,360)
+c=(240,120)
+d=(540,120)
+cv2.arrowedLine(img,a,(460,360),color,thickness=2,tipLength=3e-2)
+cv2.arrowedLine(img,a,(300,40),color,thickness=2,tipLength=3e-2)
+draw_path(img,c,d,b,thickness=1)
+cv2.line(img,a,d,color,thickness=2)
+cv2.ellipse(img,a,(300,300),0,285,375,color)
+cv2.ellipse(img,b,(300,300),0,290,320,color)
+cv2.ellipse(img,c,(300,300),0,345,375,color)
+add_tick(img,a,b)
+add_tick(img,a,c)
+add_tick(img,b,d)
+add_tick(img,c,d)
+cv2.putText(img,'A',(60,380),font,0.6,color,2)
+cv2.putText(img,'B',(360,380),font,0.6,color,2)
+cv2.putText(img,'C',(230,110),font,0.6,color,2)
+cv2.putText(img,'D',(540,110),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-6.7}
+
+Given $\triangle ABC$, find its circumcenter, incenter, centroid, and orthocenter.<br>
+Given a circle, find its center.
+
+:::
+
+## More problems
+
+::: {#exr-7.8}
+
+Given $\triangle ABC$ with circumcenter O, $m \angle A=45^\circ$ and $m \angle BAO=23^\circ$, find the measures of the 3 angles whose vertex is O.<br>
+Given $\triangle ABC$ with medians $\overline{AD}\perp \overline{BE}$, $BC=10$, and $AD=12$, find the length of the 2 other medians.
+
+:::
+
+::: {#exr-7.8c}
+
+Given $\triangle ABC$, is it ever possible to find points D,E on $\overline{BC}$ such that $BD=DE=EC$ and for $m \angle BAD=m \angle DAE=m \angle EAC$?<br>
+Given $\triangle ABC$ with angle bisectors $\overline{AD}$, $\overline{BE}$, and $\overline{CF}$, show that
+$$\frac{AI}{ID}= \frac{BC}{AB+AC}$$
+Hint: use the Angle bisector theorem on $\triangle BAD$ and $\triangle CAD$.
+Aside: given Cartesian coordinates for ABC, the centroid is the average. The incenter is the weighted average with weight proportional to the opposite side's length.<br>
+Show that 2 of a triangle's angle bisectors cannot be perpendicular. (Hint: use contradiction)<br>
+Given $\triangle ABC$ with $m \angle A=100^\circ$, $m \angle B=50^\circ$, $\overline{AD}$ is an altitude, and $overline{BE}$ is a median, find $m \angle CDE$.<br>
+Given $\triangle ABC$ with $m \angle C=90^\circ$,  medians $\overline{AD}$, $\overline{BE}$, and $\overline{CF}$, and M the midpoint of $\overline{AF}$.
+If the perimeter of $\triangle ABC$ is 224 and EM=25, find [BCEF].<br>
+Given $\triangle ABC$ with medians $\overline{BE}$ and $\overline{CF}$, which of these change as you move A parallel to $\overleftrightarrow{BC}$? EF, perimeter of $\triangle ABC$, $[ABC]$, $[ABFE]$.<br>
+Given $\triangle ABC$ and $\odot I$, that intersects $\overleftrightarrow{AB}$ at D,E, $\overleftrightarrow{AC}$ at F,G, and $\overleftrightarrow{BC}$ at H,J.
+Show that $I$ is the incenter if and only if $DE=FG=HJ$.<br>
+A ladder rests vertically against a wall perpendicular to the ground.
+It slips and falls, with its bottom moving directly from the wall, and its top always touching the wall. What path does its midpoint trace?<br>
+Besides the circumcircle and incircle, another circle associated with any triangle is the <i>9 point circle</i>, which passes thru the 3 sides' midpoints, the 3 altitudes' feet, and the points midway between the orthocenter and the 3 vertices.
+Prove that the 9 point circle's radius is 1/2 the circumradius. For an equilateral triangle, the 9 point circle is the incircle.
+ (Beyond our scope) The 9 point circle's center is on the Euler line, midway between the circumcenter and orthocenter.
+For a non equilateral triangle, the 9 point circle is tangent to the incircle.
+
+:::
+
+::: {#exm-7.6.30}
+
+Given $\triangle ABC$ with medians $\overline{AD}$ and $\overline{CF}$, G on $\overline{AC}$ such that $AC/AG=4$, and M the intersection of $\overline{AD}$ and $\overline{FG}$, find $AM/MD$.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((500,600,3),dtype=np.uint8)*255
+a=(230,90)
+b=(90,370)
+c=(510,370)
+d=(300,370)
+f=midpt(a,b)
+g=(300,160)
+m=(238,183) #get_intersection(a,d,f,g)
+draw_path(img,a,b,c,a)
+add_tick(img,a,f)
+add_tick(img,b,f)
+for q in [-5,5]:
+    add_tick(img,b,d,offset_px=q)
+    add_tick(img,c,d,offset_px=q)
+img1=img.copy()
+cv2.line(img,a,d,color,thickness=2)
+cv2.line(img,f,g,color,thickness=2)
+for j,lbl in enumerate('BADCFGM'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-7.6.1}
+
+Given $\triangle ABC$ with medial $\triangle DEF$, and $\overline{BG}$ the altitude to side $\overline{AC}$, show that figure FDEG is an isosceles trapezoid.
+Hint: consider the circumradii of $\triangle ABG$ and $\triangle BCG$.
+
+:::
+
+```{python}
+#| echo: false
+e=midpt(a,c)
+cv2.line(img1,b,g,color,thickness=2)
+draw_path(img1,d,e,f)
+draw_path(img1,(285,175),(300,190),(315,175),thickness=1) #perp marker
+for j,lbl in enumerate('EBADCFG'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img1,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img1)
+```
+::: {#exr-7.6.3}
+
+Given $\triangle ABC$ where $\overline{AD}$ bisects $\angle A$, M is on $\overline{AD}$ such that $\overline{CM}\perp \overline{AD}$, and $\overline{EF}\parallel \overline{AB}$ passes thru M, show that E is the midpoint of $\overline{AC}$.
+If $AB=5$, $AC=3$, and $BC=4$, find $DF$. What about if $AB=10$, $AC=8$, and $BC=9$?
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,500,3),dtype=np.uint8)*255
+a=(80,100)
+b=(400,340)
+c=(80,340)
+d=(200,340)
+e=(80,220)
+f=(240,340)
+m=(176,292)
+draw_path(img,a,b,c,a,d)
+cv2.line(img,e,f,color,thickness=2)
+cv2.line(img,c,m,color,thickness=2)
+cv2.ellipse(img,a,(25,25),0,37,90,color,thickness=1) #angle marker
+draw_path(img,(156,302),(166,322),(186,312),thickness=1) #perp marker
+cv2.arrowedLine(img,(240,220),(248,226),color,tipLength=1.0) #parallel markers
+cv2.arrowedLine(img,(120,250),(128,256),color,tipLength=1.0)
+for j,lbl in enumerate('BACEDMF'):
+    p=globals()[lbl.lower()]
+    r,q=(5,-10) if j%2 else (0,20)
+    cv2.putText(img,lbl,(p[0]+r,p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-7.8.57}
+
+Given $\triangle ABC$, draw bisectors to the exterior angles at B and C, call their point of intersection $I_a$, the triangle's <i>excenter</i> with respect to A.
+Show that $I_a$ is equidistant from $\overrightarrow{AB}$, $\overrightarrow{AC}$, and $\overline{BC}$ (so $I_a$ is on the bisector of $\angle A$).
+Call this distance $r_a$, the <i>exradius</i>. Show that $[ABC]=r_a(s-BC)$ where s is the semi perimeter of $\triangle ABC$.
+The <i>excircle</i> has center $I_a$ and radius $r_a$ and is tangent to $\overrightarrow{AB}$, $\overrightarrow{AC}$, and $\overline{BC}$.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,500,3),dtype=np.uint8)*255
+a=(60,60)
+b=(300,240)
+c=(300,60)
+i=(420,180)
+draw_path(img,(468,60),a,(468,366))
+draw_path(img,(420,60),i,(300,180),thickness=1)
+cv2.line(img,b,c,color,thickness=2)
+cv2.line(img,i,get_intersection(a,b,i,(390,220)),color)
+cv2.line(img,b,(468,156),color)
+cv2.line(img,c,(468,228),color)
+cv2.ellipse(img,c,(25,25),0,0,90,color,thickness=1) #angle markers
+cv2.ellipse(img,b,(25,25),0,-90,37,color,thickness=1)
+cv2.line(img,(315,240),(335,240),color)
+cv2.line(img,(310,230),(324,216),color)
+draw_path(img,(440,60),(440,80),(420,80),thickness=1) #perp markers
+draw_path(img,(300,160),(320,160),(320,180),thickness=1)
+draw_path(img,(360,260),(376,272),(364,288),thickness=1)
+cv2.putText(img,'A',(60,50),font,0.6,color,2)
+cv2.putText(img,'B',(290,260),font,0.6,color,2)
+cv2.putText(img,'C',(300,50),font,0.6,color,2)
+cv2.putText(img,'Ia',(410,205),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exm-7.8.61}
+
+Below, $\triangle ABC$ has median $\overline{AD}$ and $\triangle ABD$ has medians $\overline{BE}$ and $\overline{CF}$ that intersect at G.
+Find $[DEG]/[ABC]$.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((500,600,3),dtype=np.uint8)*255
+a=(230,90)
+b=(90,370)
+c=(510,370)
+d=(300,370)
+e=midpt(a,d)
+f=midpt(a,b)
+g=(200,280) #get_intersection(b,e,d,f)
+draw_path(img,e,b,a,d,f)
+draw_path(img,a,c,b)
+for j,lbl in enumerate('BADCGE'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.putText(img,'F',(145,230),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exm-7.8.61}
+
+Below, a circle of radius 1 circumscribes equilateral $\triangle ABC$, D is the midpoint of $\overline{BC}$, and E is on $\overset{\frown}{BC}$ with $\overline{DE}\perp \overline{BC}$. Find DE.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((500,500,3),dtype=np.uint8)*255
+a=(250,70)
+b=(94,340)
+c=(406,340)
+d=(250,340)
+e=(250,430)
+draw_path(img,e,d,b,a,c,d)
+cv2.circle(img,(250,250),radius=180,color=color,thickness=1)
+add_tick(img,b,d)
+add_tick(img,c,d)
+draw_path(img,(230,340),(230,360),(250,360),thickness=1) #perp marker
+for j,lbl in enumerate('BACDE'):
+    p=globals()[lbl.lower()]
+    q=-10 if j%2 else 20
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
