@@ -1,0 +1,580 @@
+---
+title: "Geometry Ch9"
+format:
+  html: default
+#    number-sections: true
+#  pdf:
+#    number-sections: true
+# thm lem cor prp cnj def exm exr
+---
+
+```{python}
+from helper import *
+```
+
+## Intro
+A <i>polygon</i> is a closed planar figure with a boundary of straight segments.
+Most polygons we have encountered are triangles, and a few <i>quadrilaterals</i> (4 sided figures).
+The segments that form the boundary are <i>sides</i>.
+These meet at <i>vertices</i> to form <i>interior angles</i> that are 'inside' the polygon.
+To each interior angle under $180^\circ$ are 2  <i>exterior angles</i>, formed by extending either side.
+A <i>convex</i> polygon has all its interior angles measure under $180^\circ$. They are our main focus.
+Polygons that are not convex are <i>concave</i>.
+A <i>diagonal</i> is any segment that joins 2 non adjacent sides.
+In a <i>regular</i> polygon, all sides have equal length and all angles equal measure.
+As we have seen, a regular polygon with 3 sides is an equilateral triangle, and a regular quadrilateral is a square.
+Below, ABDC is a convex polygon (quadrilateral), ABEC is a concave polygon, $\angle ABD$ is an interior angle of ABDC, and $\angle ABF$ is 1 corresponding exterior angle.
+$\overline{BC}$ is a diagonal.
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=np.array((220,50))
+b=(100,290)
+c=(340,290)
+d=(220,350)
+e=(220,230)
+f=(60,270)
+draw_path(img,f,d,c,a,b,e,c)
+cv2.line(img,b,c,color)
+for j,lbl in enumerate('ABECFD'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.circle(img,f,radius=4,color=color,thickness=-1)
+show_geometry_image(img)
+```
+
+## Polygon angles
+
+::: {#lem-9.ngon.angle}
+
+For any n-gon, the sum of its interior angles is $180(n-2)^\circ$, and the sum of its exterior angles is $360^\circ$.
+In particular, in a regular n-gon, each interior angle is $180(n-2)^\circ/n$, and each exterior angle is $360^\circ /n$.
+
+:::
+
+This result suggests that sometimes it is easier to consider a polygon's exterior than interior angles.
+
+::: {.proof}
+
+Any n-gon can be split into n-2 triangles (for a convex polygon, the segments that do this splitting are the diagonals from a fixed vertex).
+Since the sum of a triangle's angles is $180^\circ$ by @lem-2.5, it is $180(n-2)^\circ$ for an n-gon.
+Since an interior angle and its exterior angle form a straight angle, the sum of an n-gon's exterior angles is (in degrees) $180n-180(n-2)=360$.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=(200,60)
+b=(80,120)
+c=(80,320)
+d=(320,320)
+e=(320,120)
+f=(60,270)
+cv2.line(img,a,(360,140),color,thickness=2)
+cv2.line(img,b,(240,40),color,thickness=2)
+cv2.line(img,c,(80,80),color,thickness=2)
+cv2.line(img,d,(40,320),color,thickness=2)
+cv2.line(img,e,(320,360),color,thickness=2)
+draw_path(img,e,b,d,thickness=1)
+show_geometry_image(img)
+```
+
+::: {#exm-9.2}
+
+If each interior angle in an n-gon measures $172^\circ$, what is n? What if each interior angle measures $160^\circ$?<br>
+If A B C D E are adjacent vertices in a regular 15-gon, what are $m \angle ACB$, $m \angle ACD$, and $m \angle ADE$?
+
+:::
+
+::: {#exr-9.2.4}
+
+The angle measures in a pentagon have ratios 3:3:3:4:5. What is the biggest angle measure?<br>
+If an n-gon's interior angles sum to 3 times the sum of its exterior angles, what is n? What if we change 3 to 9?
+
+:::
+
+::: {#exr-9.2.1}
+
+Fill out the table below (all angle measures in degrees).
+What is the smallest integer $n \geq 3$ where any of the angle measures is not an integer?
+
+:::
+
+<table class='table-with-border'>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th># of Sides</th>
+      <th>Sum of Interior Angles</th>
+      <th>Interior Angle Measure</th>
+      <th>Exterior Angle Measure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>pentagon</td><td>5</td><td>540</td><td>108</td><td>72</td></tr>
+    <tr><td>hexagon</td><td>6</td><td></td><td></td><td></td></tr>
+    <tr><td>heptagon</td><td>7</td><td></td><td></td><td></td></tr>
+    <tr><td>octagon</td><td>8</td><td></td><td></td><td></td></tr>
+    <tr><td>nonagon</td><td>9</td><td></td><td></td><td></td></tr>
+    <tr><td>decagon</td><td>10</td><td></td><td></td><td></td></tr>
+    <tr><td>dodecagon</td><td>12</td><td></td><td></td><td></td></tr>
+    <tr><td>pentadecagon</td><td>15</td><td></td><td></td><td></td></tr>
+    <tr><td>icosagon</td><td>20</td><td></td><td></td><td></td></tr>
+    <tr><td>triacontagon</td><td>30</td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+## Polygon area
+
+::: {#lem-9.ngon.ctr}
+
+A regular n-gon has a center that is equidistant from each vertex, equidistant from each side, and the angle bisector at each vertex passes thru this center.
+If n is even, then this angle bisector is also the angle bisector for the opposite vertex (n/2 vertices away).<br>
+An n-gon is regular if and only if it can be split into n congruent isosceles triangles, with each side as a base.
+
+:::
+
+Any regular polygon thus has a unique circle that circumscribes it, and another unique circle that can be inscribed in it.
+The inradius is often called the <i>apothem</i>. Below, $\overline{GO}$ is an apothem.
+
+::: {.proof}
+
+Let A B C be consecutive vertices on the polygon. Draw angle bisectors for $\angle A$ and $\angle B$ (which have the same measure), call their intersection O.
+Draw $\overline{OC}$. Since AB=BC, we have $\triangle ABO \cong \triangle BCO$ by ASA congruence @lem-3.asa.
+Then AO=BO=CO and $m \angle BCO=m \angle ABO$ by @lem-3.6.isosc and CPCTC, so $\overline{CO}$ bisects $\angle C$.
+If we connect O to each of the polygon's vertices via segments, we get n congruent isosceles triangles, each with vertex angle $360^\circ /n$.
+When n is even, n/2 of these add up to $180^\circ$, so $\overline{AO}$ and the segment to the opposite vertex form a straight angle.
+The distance from O to any of the polygon's sides is the 'height' of any of these isosceles triangles with that side as the 'base'.
+This distance (or the triangle's altitude) is precisely the apothem.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+o=(200,200)
+hx=reg_poly(6,o,150)
+e,f,a,b,c,d=hx
+g=(200,60) #midpt(c,d)
+draw_path(img,*hx,e)
+draw_path(img,a,o,b,thickness=1)
+draw_path(img,c,o,(200,70),thickness=1)
+add_tick(img,a,o)
+add_tick(img,b,o)
+cv2.ellipse(img,a,(25,25),0,240,360,color,thickness=1) #angle markers
+cv2.ellipse(img,b,(25,25),0,-60,60,color,thickness=1)
+draw_path(img,(200,90),(180,90),(180,70),thickness=1) #perp marker
+for j,lbl in enumerate('AGBOC'):
+    p1=globals()[lbl.lower()]
+    q=10 if j%2 else -20
+    cv2.putText(img,lbl,(p1[0]+q,p1[1]),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#lem-9.apothem}
+
+A regular polygon area is its apothem times its semi perimeter.
+
+:::
+
+::: {.proof}
+
+Continuing from @lem-9.ngon.ctr where we split the polygon into n congruent isosceles triangles, its area is $n[APO]=n \cdot AB \cdot GO/2$ by @lem-4.tri.area.
+We recognize $n \cdot AB/2$ as the semi perimeter and GO as the apothem.
+
+:::
+
+Just as with Heron's formula, @lem-9.apothem might not be the best way to find a polygon's area.
+
+::: {#exm-9.3.hexagon}
+
+A regular hexagon's 3 'long' diagonals (that connect opposite vertices) split it into 6 congruent equilateral triangles.<br>
+Problem solving with regular hexagons often uses this.
+Find its area in terms of its side length s.
+If A B C D are consecutive vertices, find AD and AC.
+
+:::
+
+
+::: {.proof}
+
+Draw 6 segments to connect the hexagon's center to its 6 vertices.
+These produce the 3 long diagonals, which split the hexagon into 6 isosceles triangles by @lem-9.ngon.ctr.
+Each of the hexagon's angles is $120^\circ$ by @lem-9.ngon.angle. So each isosceles triangle's base angles are $60^\circ$, so they are in fact equilateral.
+
+:::
+
+::: {#exm-9.3.octagon}
+
+Use the below diagram (prove the outer figure is a square) to find a regular octagon's area in terms of its side length s.
+Find the length of its apothem and any segment from its center to a vertex.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+oc=reg_poly(8,(200,200),150,22.5)
+a,b,c,d,e,f,g,h=oc
+draw_path(img,*oc,a)
+draw_path(img,a,(339,339),b,thickness=1)
+draw_path(img,c,(61,339),d,thickness=1)
+draw_path(img,e,(61,61),f,thickness=1)
+draw_path(img,g,(339,61),h,thickness=1)
+show_geometry_image(img)
+```
+2 more strategies to find area are to break the figure into more manageable pieces (usually triangles and quadrilaterals), or to consider a larger figure and view the desired figure as a 'leftover' portion.
+Regular polygons have many symmetries useful for problem solving.
+
+::: {#exr-9.3.5}
+
+A <i>hexagram</i> is formed with 2 congruent equilateral triangles that trisect each other's sides.
+Prove the intersection is a regular hexagon. Find the ratio of the hexagram's area to the hexagon's.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+hx=reg_poly(6,(200,200),150)
+a,b,c,d,e,f=hx
+draw_path(img,a,c,e,a)
+draw_path(img,b,d,f,b)
+show_geometry_image(img)
+```
+
+Aside: any 2 polygons with the same area can be dissected into the same pieces.
+The case where 1 is an equilateral triangle and the other is a square is the "haberdasher's problem" and shown below.
+See more <a href=https://mathworld.wolfram.com/Dissection.html>here</a>.
+
+```{python}
+#| echo: false
+qj=3**0.5
+(qj-3/4)**0.5 #0.991
+img=np.ones((400,300,3),dtype=np.uint8)*255
+a=(150,27)
+b=(50,200)
+c=(250,200)
+e=(200,113)
+f=(100,113)
+n=(157,150)
+o=(58,237)
+g=(101,200)
+h=(201,200)
+draw_path(img,a,b,c,a)
+draw_path(img,o,(145,336),(244,249),n,o)
+cv2.line(img,e,n,color)
+cv2.line(img,f,(144,163),color)
+draw_path(img,(101,287),(151,200),(201,287),thickness=1)
+add_tick(img,a,e)
+add_tick(img,c,e)
+add_tick(img,a,f)
+add_tick(img,b,f)
+cv2.putText(img,'A',(80,180),font,1,color,2)
+cv2.putText(img,'A',(80,250),font,1,color,2)
+cv2.putText(img,'B',(200,180),font,1,color,2)
+cv2.putText(img,'B',(200,250),font,1,color,2)
+show_geometry_image(img)
+```
+
+## Polygon construction
+
+::: {#exm-9.5.square}
+
+To construct a square, we know how to make 4 segments of the same length that are perpendicular @exm-6.6.perp.<br>
+A slicker way is to draw 2 perpendicular lines, and then a circle centered at their intersection.
+Connect the 4 points where the circle intersects the lines.
+
+:::
+
+::: {.proof}
+
+This makes 4 congruent 45-45-90 triangles @lem-6.45tri, so we have 4 sides of the same length that are perpendicular, ie a square.
+
+::: 
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=(340,200)
+cv2.line(img,(200,30),(200,370),color)
+cv2.line(img,(30,200),(370,200),color)
+cv2.circle(img,(200,200),radius=140,color=color)
+img1=img.copy()
+draw_path(img,a,(200,340),(60,200),(200,60),a)
+draw_path(img,(200,180),(220,180),(220,200), thickness=1) #perp marker
+show_geometry_image(img)
+```
+
+::: {#exm-9.5.hexagon}
+
+To construct a regular hexagon, due to @exm-9.3.hexagon, we can construct 6 equilateral triangles with a vertex shared by all 6 using @lem-3.7.
+A slicker way is to draw $\odot O$, pick any point A on it. Find the other 2 points on $\odot O$ that are OA away from A.
+Keep going until we have 6 points on $\odot O$ all spaced OA apart. Finally, connect these 6 points.
+So for the whole construction, have the compass opened to the same radius.
+
+:::
+
+::: {.proof}
+
+By construction, if we connect each vertex to O, we get 6 equilateral triangles.
+So we have a regular hexagon by @exm-9.3.hexagon.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+o=(200,200)
+hx=reg_poly(6,o,150)
+draw_path(img,*hx,hx[0])
+cv2.circle(img,(200,200),radius=150,color=color)
+cv2.ellipse(img,hx[0],(150,150),0,210,270,color)
+for j in range(4):
+    cv2.ellipse(img,hx[j],(150,150),0,90+60*j,150+60*j,color)
+cv2.circle(img,o,radius=4,color=color,thickness=-1)
+cv2.putText(img,'O',(210,200),font,0.6,color,2)
+cv2.putText(img,'A',(330,200),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exm-9.5.octagon}
+
+To construct a regular octagon, we can draw 8 segments of equal length and with $135^\circ$ angles.
+We can make these by doing $90^\circ$ angles 1st, and then bisecting the exterior angles @exm-7.7.abisect.
+A slicker way is to start with the perpendicular lines and circle as we did to construct a square @exm-9.5.square.
+Then draw angle bisectors (2 lines) for the 4 right angles.
+Connecting the 8 points of intersection with the circle gives a regular octagon.
+
+:::
+
+::: {.proof}
+
+By construction, if we connect each vertex to the circle's center (where the 4 lines intersect), we get 8 congruent isosceles triangles.
+They form a regular octagon by @lem-9.ngon.ctr.
+
+:::
+
+```{python}
+#| echo: false
+cv2.line(img1,(30,30),(370,370),color)
+cv2.line(img1,(30,370),(370,30),color)
+oc=reg_poly(8,(200,200),140)
+draw_path(img1,*oc,oc[0])
+show_geometry_image(img1)
+```
+
+::: {#exr-9.5.3}
+
+Construct a regular dodecagon (with 12 sides).<br>
+Construct a hexagram.
+
+:::
+
+::: {#exr-9.5.pentagon}
+
+Use the below diagram as a guide to construct a regular pentagon.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+o=(200,200)
+a=(200,124)
+b=(200,48)
+pe=reg_poly(5,o,152)
+cv2.circle(img,o,radius=152,color=color)
+draw_path(img,*pe,pe[0])
+draw_path(img,b,o,(352,200),a,(247,200),pe[4],thickness=1)
+cv2.line(img,o,(48,200),color)
+add_tick(img,o,a)
+add_tick(img,a,b)
+cv2.ellipse(img,a,(25,25),0,27,90,color,thickness=1) #angle marker
+draw_path(img,(200,180),(180,180),(180,200),thickness=1) #perp markers
+draw_path(img,(247,180),(267,180),(267,200),thickness=1)
+cv2.putText(img,'O',(200,220),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+## More problems
+
+::: {#exr-9.6}
+
+A square and regular hexagon have the same side length. The square's area is $\sqrt{3}$. What is the hexagon's?<br>
+In an octagon, 4 angles measure x degrees, 2 measure 2x degrees, and the rest are right angles. Is the octagon concave or convex?<br>
+Derive a formula for how many diagonals a regular n-gon has in terms of n. What kind of polygon has 27 diagonals?<br>
+If a regular octagon has consecutive vertices A B C D E, and AB=1, find AC AD AE.<br>
+A regular polygon has the same number of diagonals as sides. What is the sum of its interior angle measures?<br>
+A regular pentagon has side $\overline{BC}$. A regular hexagon has side $\overline{BD}$.
+They share side $\overline{AB}$. What are the possible values of $m \angle CBD$?
+What about if pentagon -> square, hexagon -> pentagon?<br>
+Given regular octagon ABCDEFGH, if $\overline{AE}$ and $\overline{CG}$ intersect at O and M is the midpoint of $\overline{AB}$, find $m \angle BAO$, $m \angle AOM$, $m \angle MOD$.
+(Hint: prove O is the center of ABCDEFGH)
+
+:::
+
+::: {#exr-9.4}
+Given regular pentagon ABCDE with diagonals $\overline{BD}$ and $\overline{CE}$ intersecting at F, show ABFE is a rhombus and find its angle measures.<br>
+Given regular octagon ABCDEFGH, prove $\overline{AB}\parallel \overline{EF}\parallel \overline{CH}\parallel \overline{DG}\perp \overline{AF}\parallel \overline{BE}\parallel \overline{CD}\parallel \overline{GH}$.
+Prove ACEG is a square. If AB=1, find the area of ABDG.<br>
+Given regular hexagon UVWXYZ with center O, and regular hexagon UOWABC with AB=1, find the area of both hexagons and their intersection.<br>
+Given an octagon whose interior angles are all $135^\circ$ and side lengths alternate between 2 and 6, find its perimeter, area, and the length of its longest diagonal.<br>
+Given regular hexagon ABCDEF, what fraction of its area is $[ABCE]$? What about $[ACE]$?
+What about the hexagon whose vertices are the midpoints of the sides of ABCDEF?
+  
+:::
+
+::: {#exm-9.4.13}
+
+Below, find $m \angle A+m \angle B+m \angle C+m \angle D+m \angle E$.
+How about for a star with 7 points?
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((700,700,3),dtype=np.uint8)*255
+a=(100,300)
+b=(400,100)
+c=(600,300)
+d=(400,600)
+e=(200,600)
+g=(410,300) #shift right 10
+i=get_intersection(a,d,c,e)
+draw_path(img,a,c,e,b,d,a)
+for j,lbl in enumerate('ADBECIG'):
+    p=globals()[lbl.lower()]
+    q=25 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+cv2.putText(img,"F",(300,290),font,0.6,color,2)
+cv2.putText(img,"H",(410,470),font,0.6,color,2)
+j=get_intersection(a,d,b,e)
+cv2.putText(img,"J",(j[0]-20,j[1]+10),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-9.7}
+
+Given a regular n-gon with consecutive vertices A B C D, show ABCD is an isosceles trapezoid and that $m \angle BAD=360^\circ /n$.<br>
+Given 2 convex polygons whose combined interior angles sum to $1980^\circ$, and with 34 diagonals total, how many more sides does 1 polygon have than the other?<br>
+A regular hexagon and equilateral triangle have the same perimeter. What is the ratio of their areas?<br>
+A convex n-gon has interior angles $(172-4j)^\circ$ for j=0,1,...,n-1. Find n.<br>
+For how many values of n does a regular n-gon have an interior angle with an integer number of degrees?<br>
+Find a formula (in terms of n) for the maximum number of non-obtuse angles that a convex n-gon can have.<br>
+Given right triangle $\triangle ABC$ with $m \angle C=90^\circ$, if $P_a, P_b, P_c$ are regular polygons with sides BC, AC, AB respectively, show $[P_a]^2+[P_b]^2=[P_c]^2$.
+
+:::
+
+::: {#exr-9.7.36}
+
+Below (not to scale), BC=1, BE=2, and $\overline{BE}\parallel \overline{CD}$. Find the pentagon's area.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=(50,350)
+b=(50,150)
+c=(200,50)
+d=(350,200)
+e=(250,350)
+draw_path(img,a,b,c,d,e,a)
+add_tick(img,b,c)
+add_tick(img,c,d)
+add_tick(img,d,e)
+for j in [-5,5]:
+    add_tick(img,a,b,offset_px=j)
+    add_tick(img,a,e,offset_px=j)
+draw_path(img,(50,330),(70,330),(70,350), thickness=1) #perp marker
+for j,lbl in enumerate('BACED'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0],p[1]+q),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exr-9.7.40}
+
+Below, all tiles are regular hexagons, squares, or equilateral triangles.
+If the hexagon has area 96, what areas do the other tiles and the overall dodecagon (12-gon) have?
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((600,600,3),dtype=np.uint8)*255
+o=(300,300)
+do=reg_poly(12,o,250)
+draw_path(img,*do,do[0])
+hx=[]
+for j in range(6):
+    x=find_eq_tri(do[2*j],do[2*j+1])
+    draw_path(img,do[2*j],x,do[2*j+1])
+    hx.append(x)
+draw_path(img,*hx,hx[0])
+show_geometry_image(img)
+```
+
+::: {#exr-9.7.46}
+
+Given a $n_1$-gon, $n_2$-gon, and $n_3$-gon ($n_1 \leq n_2 \leq n_3$), each with side length 1 and a common vertex, with each side with that vertex as an endpoint shared by 2 polygons, find all possible values of $n_1,n_2,n_3$.
+(For instance, we can have $n_1=n_2=n_3=6$ as below, but not 5 since that would leave gaps, or 7 since then the polygons would not fit)
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+hx=reg_poly(6,(110,200))
+hx2=hx+hx[0]-hx[2]
+hx3=hx+hx[0]-hx[4]
+for q in [hx,hx2,hx3]:
+    draw_path(img,*q,q[0])
+show_geometry_image(img)
+```
+
+::: {#exr-9.7.48}
+
+Below (not to scale), 2 squares that share a center both have side length 99.
+If AB=99, find the area of their intersection (an octagon).
+Hint: find any right triangle's area without 1st finding its legs' lengths.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((500,500,3),dtype=np.uint8)*255
+a=(100,100)
+b=(220,40)
+draw_path(img,a,(100,400),(400,400),(400,100),a)
+draw_path(img,b,(460,220),(280,460),(40,280),b)
+cv2.putText(img,'A',(175,120),font,0.6,color,2)
+cv2.putText(img,'B',(290,120),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+Aside: a <i>tessellation/ tiling</i> covers a surface (usually a plane) with shapes called <i>tiles</i> with neither gaps nor overlaps.
+A <i>regular tessellation</i> uses just 1 regular polygon as a tile, eg a hexagon as in @exr-9.7.46 (the only other possibilities are squares or equilateral triangles).
+A <i>semiregular tessellation</i> can use 1+ kinds of regular polygons, with the same order of them surrounding each vertex.
+Not counting regular tessellations, there are 8 possibilities, eg with squares and octagons as below.
+A <i>demiregular tessellation</i> can use 1+ kinds of regular polygons, but allows different kinds to surround each vertex.
+An example can be made by repeating the pattern in @exr-9.7.40.
+But tilings need not use only use regular polygons, or be <i>periodic</i> (ie, repeat the same pattern over and over).
+See the 'tessellation' Wikipedia page for more examples, or <a href=https://www.mcescher.com>this</a>.
+
+```{python}
+#| echo: false
+img=np.ones((500,500,3),dtype=np.uint8)*255
+oc=reg_poly(8,(110,110),100,22.5)
+dx=np.array([184,0])
+dy=dx[::-1]
+oc2=oc+dx
+for q in [oc,oc2,oc+dy,oc2+dy]:
+    draw_path(img,*q,q[0])
+show_geometry_image(img)
+```

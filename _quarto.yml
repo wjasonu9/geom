@@ -14,6 +14,7 @@ book:
     - geom5.qmd
     - geom6.qmd
     - geom7.qmd
+    - geom9.qmd
     - qj.qmd
 
 #filters:

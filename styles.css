@@ -18,3 +18,13 @@
 /*  display: block;
   text-align: right;*/
 }
+
+.table-with-border {
+  border-collapse: collapse;
+  width: 100%; }
+.table-with-border th,
+.table-with-border td {
+  border: 1px solid black;
+  padding: 8px; }
+/*.table-with-border th {
+  background-color: #f2f2f2; }*/

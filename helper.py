@@ -76,14 +76,23 @@ def draw_path(img, *pts, color=(0, 0, 0), thickness=2):
     '''same via cv2 built-in
     cv2.polylines(img,[np.array(pts,dtype=np.int32)],isClosed=False,
         color=color,thickness=thickness)'''
-def find_eq_tri(pt1, pt2, orient=1):
+def find_eq_tri(pt1,pt2,orient=1):
     """Finds pt3 such that pt1, pt2, and pt3 form an equilateral triangle.
     When orient=1, pt3 is chosen such that pt1 -> pt2 -> pt3 is CW (CCW in raw Cartesian space)"""
-    x1, y1 = pt1
-    x2, y2 = pt2
-    dx,dy = x2 - x1, y2 - y1
-    c = 1/2 #math.cos(angle) #angle = -orient * math.pi / 3.0
-    s = orient*3**0.5/2 #math.sin(angle)
-    x3 = x1 + (dx * c - dy * s)
-    y3 = y1 + (dx * s + dy * c)
-    return int(x3), int(y3) #round() is still float
+    pt1=np.array(pt1)
+    pt2=np.array(pt2)
+    dx,dy=pt2-pt1
+    c=1/2 #math.cos(angle) #angle = -orient * math.pi / 3.0
+    s=orient*3**0.5/2 #math.sin(angle)
+    pt3=pt1+np.array([dx*c-dy*s,dx*s+dy*c])
+    return pt3.round().astype(np.int16) #round() is still float
+def reg_poly(n,ctr,r=100,init_angle=0):
+    """Find a regular n-gon's vertices. Default 1st is on positive x-axis,
+    rotated by init_angle degrees CCW
+    >>> qjx=reg_poly(3,(200,200),init_angle=45)
+    >>> np.array_equal(qjx[2],find_eq_tri(qjx[0],qjx[1]))
+    True"""
+    # theta = np.linspace(0,2*math.pi, n, endpoint=False)-math.radians(init_angle)
+    th=np.arange(n)*2*math.pi/n-math.radians(init_angle)
+    vx=np.array(ctr)+r*np.column_stack([np.cos(th),np.sin(th)])
+    return vx.round().astype(np.int16)

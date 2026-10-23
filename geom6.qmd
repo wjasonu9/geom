@@ -117,7 +117,7 @@ show_geometry_image(img)
 ::: {#exr-6.1}
 
 Prove that the hypotenuse is a right triangle's longest side.<br>
-Given a right triangle with side lengths 7, r, and r+1,_find all possible values of r.<br>
+Given a right triangle with side lengths 7, r, and r+1, find all possible values of r.<br>
 Find the area of a triangle with side lengths 7, 7, and 10. What about $\sqrt{6}, \sqrt{7}, \sqrt{13}$?<br>
 2 poles of lengths 9 and 16 ft are planted vertically in the ground, 14 ft apart. What is the minimal length of rope needed to connect their tops?<br>
 1 leg of a right triangle is 3 cm more than 3 times the other, and the hypotenuse is 1 cm longer than the longest leg. Find this triangle's area.<br>
@@ -526,7 +526,7 @@ Find the 3 altitude lengths of a triangle with side lengths 5, 7, 8.
 
 ## Construction: perpendiculars
 
-::: {#exm-6.construct.perp}
+::: {#exm-6.6.perp}
 
 Given line k and point A (not on k), construct a line thru A perpendicular to k.<br>
 Open the compass enough to construct $\odot A$ to intersect k at 2 points, call them B,C.
