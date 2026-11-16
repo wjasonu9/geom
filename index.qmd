@@ -1,2 +1,4 @@
 # Home {.unnumbered}
 see exercise
+$$x^2 = 2$$ {#eq-jx}
+See @eq-jx has no rational solution.

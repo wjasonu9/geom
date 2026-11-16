@@ -130,33 +130,67 @@ To <i>bisect</i> a segment or angle means to cut it in half. Eg, if $\overline{A
 Given $\angle ABC$, then $\overline{BD}$ bisects it if $m \angle ABD=m \angle DBC$.
 $\overline{CD}$ is the <i>perpendicular bisector</i> of $\overline{AB}$ if it bisects $\overline{AB}$ and $\overline{CD}\perp \overline{AB}$.
 
-## Application 1
+## Parallelograms (Application 1)
+A <i>parallelogram</i> is a 4 sided figure with both pairs of opposite sides parallel.
 
 ::: {#lem-3.pgram}
 
 For the figure below, the following are equivalent.
 
-- $\triangle ABD \cong \triangle DCA$.
-- $\triangle ABE \cong \triangle DCE$ and $\triangle ACE \cong \triangle DBE$.
-- $\triangle ABE \cong \triangle DCE$.
-- $AB=CD$ and $AC=BD$.
-- $\overline{AB}\parallel \overline{CD}$ and $\overline{AC}\parallel \overline{BD}$.
-- $AB=CD$ and $\overline{AB}\parallel \overline{CD}$.
+- ABDC is a parallelogram.
 - $m \angle ABD=m \angle ACD$ and $\overline{AB}\parallel \overline{CD}$.
 - $m \angle ABD=m \angle ACD$ and $m \angle BAC=m \angle BDC$.
+- $\triangle ABD \cong \triangle DCA$.
+- $AB=CD$ and $AC=BD$.
+- $AB=CD$ and $\overline{AB}\parallel \overline{CD}$.
+- $\triangle ABE \cong \triangle DCE$.
 - $AE=ED$ and $BE=EC$.
 - $AE=ED$ and $\overline{AB}\parallel \overline{CD}$.
 
+:::
+
 By @lem-2.4 and @lem-2.7, $\overline{AB}\parallel \overline{CD}$ is equivalent to $m \angle BAD=m \angle ADC$ (so any statement about equal angle measures can substitute for any statement about parallel segments).
+
+::: {.proof}
+
+$1 \leftrightarrow 2 \leftrightarrow 3$ by @lem-2.4 and @lem-2.7.<br>
+1 $\to$ 4: $m \angle BAD=m \angle CDA$ and $m \angle CAD=m \angle BDA$ by @lem-2.4. So $\triangle ABD \cong \triangle DCA$ by ASA congruence @lem-3.asa.<br>
+4 $\to$ 5,6 by CPCTC. $m \angle BAD=m \angle CDA$ gives $\overline{AB}\parallel \overline{CD}$ by @lem-2.7.<br>
+5 $\to$ 4 by SSS congruence @lem-3.sss.<br>
+6 $\to$ 7: $m \angle BAD=m \angle CDA$ and $m \angle ABC=m \angle DCB$ by @lem-2.4. So $\triangle ABE \cong \triangle DCE$ by ASA congruence @lem-3.asa.<br>
+7 $\to$ 8,9 by CPCTC. $m \angle BAD=m \angle CDA$ gives $\overline{AB}\parallel \overline{CD}$ by @lem-2.7.<br>
+8 $\to$ 7:  by SSS congruence @lem-3.sss.<br>
+9 $\to$ 7: $m \angle BAD=m \angle CDA$ by @lem-2.4, and $m \angle AEB=m \angle DEC$ by @lem-2.3. So $\triangle ABE \cong \triangle DCE$ by ASA congruence @lem-3.asa.<br>
+8,9 $\to$ 1: $m \angle AEC=m \angle DEB$ by @lem-2.3. So $\triangle AEC \cong \triangle DEB$ by SAS congruence.
+Using the same logic as 7 $\to$ 9, we have $\overline{AC}\parallel \overline{BD}$.
+Since $\overline{AB}\parallel \overline{CD}$ too, it follows that ABDC is a parallelogram.
+
+:::
+
+::: {#exm-3.4.12}
+
+Below, AC=BD, $\overline{AC}\parallel \overline{BD}$, and $m \angle CAE=m \angle BDF$.
+Show ABDC and AFDE are both parallelograms.
 
 :::
 
 ```{python}
 #| echo: false
-img=imgp.copy()
-e=scale_p(2,1)
-cv2.putText(img, "E", (e[0], e[1] - 20), font, 0.6, color, 2)
-cv2.line(img, scale_p(4, 2), scale_p(0, 0), color, thickness=1)
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=(120,40)
+b=(360,40)
+c=(40,360)
+d=(280,360)
+e=(120,280)
+f=(280,120)
+draw_path(img,a,b,d,c,a,e,d,f,a)
+cv2.line(img,b,c,color,thickness=2)
+add_tick(img,a,c)
+add_tick(img,b,d)
+for j,lbl in enumerate('ACBDFE'):
+    p=globals()[lbl.lower()]
+    q=20 if j%2 else -10
+    cv2.putText(img,lbl,(p[0]-5,p[1]+q),font,0.6,color,2)
 show_geometry_image(img)
 ```
 
@@ -216,28 +250,6 @@ show_geometry_image(img)
 ```
 
 ## Isosceles and equilateral triangles
-
-::: {#lem-3.6.isosc}
-
-Below, we have $AB=AC$ if and only if $m \angle B=m \angle C$, in which case the following are equivalent:
-
-- $\triangle AMB \cong \triangle AMC$.
-- $\overline{AM}$ bisects $\overline{BC}$.
-- $\overline{AM}$ bisects $\angle BAC$.
-- $\overline{AM}\perp \overline{BC}$.
-- $\overline{AM}$ is the perpendicular bisector of $\overline{BC}$.
-
-:::
-
-::: {.proof}
-
-We 1st note that $\triangle AMB \cong \triangle AMC$ implies all the other statements by CPCTC.
-If $AB=AC$, assume 1st that point $M$ is the midpoint of $\overline{BC}$. Then $BM=MC$, so $\triangle AMB \cong \triangle AMC$ by SSS @lem-3.sss. By CPCTC, $m \angle B=m \angle C$ (this does not depend on $M$ being the midpoint) and $\overline{AM}$ bisects $\angle BAC$.<br>
-Next, assume $m \angle B=m \angle C$ $\overline{AM}$ bisects $\angle BAC$, ie $m \angle BAM=m \angle CAM$, so $\triangle AMB \cong \triangle AMC$ by AAS @lem-3.aas. By CPCTC, $AB=AC$ (this does not depend on $\overline{AM}$ bisecting $\angle BAC$). This shows the equivalence of $AB=AC$ and $m \angle B=m \angle C$. Also by CPCTC, $m \angle AMB=m \angle AMC$. Since $m \angle AMB+m \angle AMC=180^\circ$, we have $m \angle AMB=m \angle AMC=90^\circ$, ie $\overline{AM}\perp \overline{BC}$.<br>
-Finally, assume $m \angle B=m \angle C$ and $\overline{AM}\perp \overline{BC}$. Then $\triangle AMB \cong \triangle AMC$ by AAS @lem-3.aas. By CPCTC, $BM=MC$, ie $\overline{AM}$ bisects $\overline{BC}$.
-
-:::
-
 A triangle where 2 sides have equal length is an <i>isosceles triangle</i>. The 2 sides of equal length are the <i>legs</i>, and the remaining side is the<i>base</i>. We just showed that a triangle is isosceles if and only if it has 2 angles with the same measure, called the <i>base angles</i>, opposite the 2 legs. The remaining angle is the <i>vertex angle</i>.
 Below, $\triangle ABC$ is an isosceles triangle. It 2 legs are $\overline{AB}$ and $\overline{AC}$. Its base is $\overline{BC}$. Its base angles are $\angle B$ and $\angle C$. Its vertex angle is $\angle BAC$.
 In general, forming the segment $\overline{AM}$ as below is useful when working with isosceles triangles.
@@ -268,6 +280,30 @@ cv2.ellipse(img,c,(25,25),0,180,243,color,thickness=1)
 cv2.line(img, (488,491), (472,479), color, thickness=1)
 show_geometry_image(img)
 ```
+
+::: {#lem-3.6.isosc}
+
+Given $\triangle ABC$ as below, we have $AB=AC$ if and only if $m \angle B=m \angle C$ if and only if there exists M on $\overline{BC}$ such that $\triangle AMB \cong \triangle AMC$.
+This point M satisfies:
+
+- $\overline{AM}$ bisects $\overline{BC}$.
+- $\overline{AM}$ bisects $\angle BAC$.
+- $\overline{AM}\perp \overline{BC}$.
+- $\overline{AM}$ is the perpendicular bisector of $\overline{BC}$.
+
+Ie, if $\triangle ABC$ is isosceles with vertex angle $\angle A$, then any item above implies the others.
+
+:::
+
+::: {.proof}
+
+We 1st note that $\triangle AMB \cong \triangle AMC$ implies $AB=AC$ if and only if $m \angle B=m \angle C$ and all the other statements by CPCTC.
+If $AB=AC$, pick $M$ to be the midpoint of $\overline{BC}$.
+Then $BM=MC$, so $\triangle AMB \cong \triangle AMC$ by SSS @lem-3.sss.
+If $m \angle B=m \angle C$ $\overline{AM}$, pick $M$ such that $\overline{AM}\perp \overline{BC}$.
+Then $\triangle AMB \cong \triangle AMC$ by AAS @lem-3.aas.
+
+:::
 
 An <i>equilateral triangle</i> has all 3 sides of equal length. A <i>scalene triangle</i> has all 3 sides of different lengths.
 
@@ -324,6 +360,63 @@ cv2.putText(img, "A", (a[0] + 20, a[1]), font, 0.6, color, 2)
 cv2.putText(img, "B", (b[0] + 20, b[1]), font, 0.6, color, 2)
 cv2.putText(img, "C", (c[0] + 20, c[1]), font, 0.6, color, 2)
 cv2.putText(img, "M", (400, 280), font, 0.6, color, 2)
+show_geometry_image(img)
+```
+
+::: {#exm-3.6.20}
+
+Given $\odot O$ below with chords $\overline{AB}\parallel \overline{DC}$, $m \angle CBO=m \angle DCO$, and $m \angle ABO=21^\circ$.
+Find $m \angle BOC$. Which is longer, $\overline{BC}$ or $\overline{AD}$?
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((350,350,3),dtype=np.uint8)*255
+o=(175,175)
+a=(58,131)
+b=(292,131)
+c=(250,275)
+d=(100,275)
+draw_path(img,a,b,o,c,d)
+cv2.circle(img,o,125,color)
+cv2.line(img,b,c,color)
+cv2.arrowedLine(img,(175,131),(185,131),color,tipLength=1) #parallel markers
+cv2.arrowedLine(img,(175,275),(185,275),color,tipLength=1)
+cv2.ellipse(img,b,(25,25),0,106,159,color) #angle markers
+cv2.ellipse(img,c,(25,25),0,180,233,color)
+for j,lbl in enumerate('ABDCO'):
+    p=globals()[lbl.lower()]
+    q=10 if j%2 else -20
+    cv2.putText(img,lbl,(p[0]+q,p[1]+5),font,0.6,color,2)
+show_geometry_image(img)
+```
+
+::: {#exm-3.6.21}
+
+Below, AE=EC=CD=DB=BF=FA. Show that $\triangle ABC$ is equilateral if and only if $\triangle DEF$ is.
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=(200,70)
+b=(44,340)
+c=(356,340)
+d=(200,310)
+e=(252,220)
+f=(148,220)
+draw_path(img,a,b,c,a)
+draw_path(img,d,e,f,d)
+pt=[a,f,b,d,c,e,a]
+for j in range(6):
+    cv2.line(img,pt[j],pt[j+1],color)
+    add_tick(img,pt[j],pt[j+1])
+for j,lbl in enumerate('ACBDFE'):
+    p=globals()[lbl.lower()]
+    q=10 if j%2 else -20
+    cv2.putText(img,lbl,(p[0]+q,p[1]),font,0.6,color,2)
 show_geometry_image(img)
 ```
 

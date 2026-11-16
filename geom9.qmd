@@ -465,7 +465,7 @@ A regular hexagon and equilateral triangle have the same perimeter. What is the 
 A convex n-gon has interior angles $(172-4j)^\circ$ for j=0,1,...,n-1. Find n.<br>
 For how many values of n does a regular n-gon have an interior angle with an integer number of degrees?<br>
 Find a formula (in terms of n) for the maximum number of non-obtuse angles that a convex n-gon can have.<br>
-Given right triangle $\triangle ABC$ with $m \angle C=90^\circ$, if $P_a, P_b, P_c$ are regular polygons with sides BC, AC, AB respectively, show $[P_a]^2+[P_b]^2=[P_c]^2$.
+Given right triangle $\triangle ABC$ with $m \angle C=90^\circ$, if $P_a, P_b, P_c$ are regular n-gons with sides BC, AC, AB respectively, show $[P_a]+[P_b]=[P_c]$.
 
 :::
 

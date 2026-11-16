@@ -485,6 +485,56 @@ We have now covered 4 sets of 3 special lines, all concurrent, for any triangle.
 It is helpful to keep in mind for problem solving: once a triangle and any 2 of those special lines are known, then so is the last.
 To find lengths, try to build right triangles.
 
+::: {#lem-7.isosc}
+
+Given $\triangle ABC$, if any 2 of these lines coincide:
+
+- The perpendicular bisector of $\overline{BC}$.
+- The angle bisector of $\angle A$.
+- The median thru A.
+- The altitude thru A.
+
+Then $\triangle ABC$ is isosceles with vertex angle $\angle A$.
+
+:::
+
+::: {.proof}
+
+Let M be the intersection of the line in question and $\overline{BC}$.<br>
+2,3: We have AB/BM=AC/CM by @lem-7.abt. Since BM=CM, we conclude AB=AC.<br>
+2,4: Since $m \angle BAM=m \angle CAM$ and $m \angle AMB=m \angle AMC=90^\circ$, we have $\triangle AMB \cong \triangle AMC$ by ASA congruence @lem-3.asa.<br>
+3,4: Since BM=CM and $m \angle AMB=m \angle AMC=90^\circ$, we have $\triangle AMB \cong \triangle AMC$ by SAS congruence.<br>
+1 and any other condition implies 3,4. $\triangle AMB \cong \triangle AMC$ is equivalent to $\triangle ABC$ being isosceles by @lem-3.6.isosc.
+
+:::
+
+```{python}
+#| echo: false
+img = np.ones((600, 600, 3), dtype=np.uint8) * 255 #copy from ch3
+a=(300,100)
+b=(100,500)
+c=(500,500)
+m=(300,500)
+draw_path(img,a,b,c,a,m)
+cv2.putText(img, "A", (a[0], a[1]-20), font, 0.6, color, 2)
+cv2.putText(img, "B", (b[0], b[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "C", (c[0], c[1]+20), font, 0.6, color, 2)
+cv2.putText(img, "M", (m[0], m[1]+20), font, 0.6, color, 2)
+cv2.line(img, (200,490), (200,510), color, thickness=1) #ticks
+cv2.line(img, (400,490), (400,510), color, thickness=1)
+for q in [-5,5]:
+    add_tick(img,a,b,offset_px=q)
+    add_tick(img,a,c,offset_px=q)
+cv2.line(img, (320,480), (300,480), color, thickness=1) #perp marker
+cv2.line(img, (320,480), (320,500), color, thickness=1)
+cv2.ellipse(img,a,(25,25),0,63,117,color,thickness=1) #angle markers
+cv2.ellipse(img,b,(25,25),0,297,360,color,thickness=1)
+cv2.line(img, (112,491), (128,479), color, thickness=1)
+cv2.ellipse(img,c,(25,25),0,180,243,color,thickness=1)
+cv2.line(img, (488,491), (472,479), color, thickness=1)
+show_geometry_image(img)
+```
+
 ::: {#exm-7.5.25}
 
 Given $\triangle ABC$ with orthocenter H, show that $\triangle ABH$ has orthocenter C (assuming A, B, H are not collinear).
@@ -500,12 +550,11 @@ He linked the last 3 with $e^{\pi i}=-1$.
 
 If A=(0,3), B=(4,0), and C=(0,0), find Cartesian coordinates for the circumcenter, incenter, centroid, and orthocenter.<br>
 Show that a triangle is isosceles if and only if 2 (or more) of its medians have the same length if and only if 2 (or more) of its altitudes have the same length.<br>
-Given $\triangle ABC$, if D is on $\overline{BC}$ such that $\overline{AD}$ is both an altitude and bisects $\angle A$, show that it is also a median.<br>
 Given equilateral $\triangle ABC$, with D and E the midpoints of $\overline{AB}$ and $\overline{BC}$, find $[ABC]/[ADE]$.
 Is knowing that $\triangle ABC$ is equilateral needed to find this ratio?<br>
 Show that if $\triangle ABC$ is equilateral, then all 4 centers are the same point.
 If A=(-1,0), B=(1,0), and C is on the positive y axis, where would this center be? And what are the circumradius and inradius?
-(Optional) If it is known that 2 of the 4 centers of $\triangle ABC$ are the same point, then it is equilateral.<br>
+(Optional) If it is known that 2 of the 4 centers of $\triangle ABC$ are the same point, then it is equilateral. (Hint: @lem-7.isosc)
 
 :::
 

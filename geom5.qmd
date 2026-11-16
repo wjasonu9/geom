@@ -207,6 +207,35 @@ Given isosceles triangle $\triangle ABC$ with base $BC=1$, $m \angle A=36^\circ$
 
 :::
 
+::: {#exr-3.6.6}
+
+Below, $m \angle ACF=m \angle BAD=m \angle CBE$. Show that $\triangle ABC$ and $\triangle DEF$ are similar.
+(Hint: think about exterior angles @lem-2.6)
+
+:::
+
+```{python}
+#| echo: false
+img=np.ones((400,400,3),dtype=np.uint8)*255
+a=(50,50)
+b=(50,350)
+c=(350,350)
+d=(110,230)
+e=(140,320)
+f=(230,290)
+draw_path(img,a,b,c,a,e)
+cv2.line(img,b,f,color,thickness=2)
+cv2.line(img,c,d,color,thickness=2)
+cv2.ellipse(img,a,(25,25),0,72,90,color) #angle markers
+cv2.ellipse(img,b,(25,25),0,-18,0,color)
+cv2.ellipse(img,c,(25,25),0,207,225,color)
+for j,lbl in enumerate('ABDCFE'):
+    p=globals()[lbl.lower()]
+    q,r=(0,20) if j%2 else (10,0)
+    cv2.putText(img,lbl,(p[0]+q,p[1]+r),font,0.6,color,2)
+show_geometry_image(img)
+```
+
 ::: {#exr-5.2.xtra}
 
 Bob wants to cut down a dead tree in his yard, but knows it will hit a nearby powerline if it exceeds 45 ft in height. He stands 30 ft from the tree and holds a ruler vertically 6 in in front of his eyes. The tree seems to measure 8 in. Can he safely cut it down?

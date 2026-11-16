@@ -1,3 +1,4 @@
 format:
   html:
     css: styles.css
+    html-math-method: mathjax #default

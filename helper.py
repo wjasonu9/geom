@@ -61,12 +61,14 @@ def get_intersection(p1, p2, p3, p4, Int=True):
     if not Int:
         return (intersect_x, intersect_y)
     return (int(intersect_x), int(intersect_y))
-def draw_perp(img, pt, line_p1, line_p2, color=(0, 0, 0), thickness=1):
+def draw_perp(img, pt, line_p1, line_p2, draw=True, color=(0, 0, 0), thickness=1):
     """Draws a perpendicular segment from pt to the line defined by (line_p1, line_p2)"""
     dx, dy = line_p2[0] - line_p1[0], line_p2[1] - line_p1[1] #get line's direction vector
     perp_pt2 = (pt[0] - dy, pt[1] + dx) #another point on perpendicular line
     proj_pt = get_intersection(line_p1, line_p2, pt, perp_pt2,Int=True)
-    cv2.line(img, pt, proj_pt, color, thickness)
+    if draw:
+        cv2.line(img, pt, proj_pt, color, thickness)
+    return(proj_pt)
 def draw_path(img, *pts, color=(0, 0, 0), thickness=2):
     #Draws line segments sequentially through 2+ pts
     if len(pts) < 2: #pts is a tuple
